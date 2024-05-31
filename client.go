@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net/http"
 	"strings"
 	"time"
 
@@ -51,13 +52,14 @@ type Client struct {
 	Image                    ImageService
 	Flavor                   FlavorService
 	Server                   ServerService
+	EcsGroup                 EcsGroupService
 	Task                     TaskService
 	Volume                   VolumeService
 	VolumeType               VolumeTypeService
+	NetworkInterface         NetworkInterfaceService
 	VolumeAutoBackup         VolumeAutoBackupService
 	VPC                      VPCService
 	Subnet                   SubnetService
-	Network                  NetworkService
 	EIP                      EIPService
 	ELB                      ELBService
 	DatabaseInstance         DatabaseInstanceService
@@ -87,11 +89,11 @@ type APIError struct {
 }
 
 // Timeout is timeout info for a long task
-type Timeout struct {
-	Delay      time.Duration `default:"geek"` // Wait this time before starting checks
-	Timeout    time.Duration // The amount of time to wait before timeout
-	MinTimeout time.Duration // Smallest time to wait before refreshes
-}
+// type Timeout struct {
+// 	Delay      time.Duration `default:"geek"` // Wait this time before starting checks
+// 	Timeout    time.Duration // The amount of time to wait before timeout
+// 	MinTimeout time.Duration // Smallest time to wait before refreshes
+// }
 
 // NewClient creates new CMC Cloud Api client.
 func NewClient(configs ClientConfigs) (*Client, error) {
@@ -100,13 +102,14 @@ func NewClient(configs ClientConfigs) (*Client, error) {
 	c.Image = &image{client: c}
 	c.Flavor = &flavor{client: c}
 	c.Server = &server{client: c}
+	c.EcsGroup = &ecsgroup{client: c}
 	c.Task = &task{client: c}
 	c.Volume = &volume{client: c}
 	c.VolumeType = &volumetype{client: c}
 	c.VolumeAutoBackup = &volumeautobackup{client: c}
 	c.VPC = &vpc{client: c}
 	c.Subnet = &subnet{client: c}
-	c.Network = &network{client: c}
+	c.NetworkInterface = &networkinterface{client: c}
 	c.EIP = &eip{client: c}
 	c.ELB = &elb{client: c}
 	c.Kubernates = &kubernates{client: c}
@@ -158,6 +161,11 @@ func (c *Client) parseResponse(response *resty.Response, err error) (string, err
 			if apiError.Error.ErrorCode == 0 {
 				apiError.Error.ErrorCode = response.StatusCode()
 			}
+
+			code := apiError.Error.ErrorCode
+			if code == http.StatusNotFound {
+				return restext, fmt.Errorf("%s: %w", apiError.Error.ErrorText, ErrNotFound)
+			}
 			return restext, fmt.Errorf("Error %d: %s", apiError.Error.ErrorCode, apiError.Error.ErrorText)
 		}
 	}
@@ -165,6 +173,15 @@ func (c *Client) parseResponse(response *resty.Response, err error) (string, err
 	if strings.Contains(restext, "error_code") && strings.Contains(restext, "error_text") {
 		var apiError APIError
 		json.Unmarshal([]byte(restext), &apiError)
+		// return restext, fmt.Errorf("Error %d: %s", apiError.Error.ErrorCode, apiError.Error.ErrorText)
+		if apiError.Error.ErrorCode == 0 {
+			apiError.Error.ErrorCode = response.StatusCode()
+		}
+
+		code := apiError.Error.ErrorCode
+		if code == http.StatusNotFound {
+			return restext, fmt.Errorf("%s: %w", apiError.Error.ErrorText, ErrNotFound)
+		}
 		return restext, fmt.Errorf("Error %d: %s", apiError.Error.ErrorCode, apiError.Error.ErrorText)
 	}
 	return restext, err

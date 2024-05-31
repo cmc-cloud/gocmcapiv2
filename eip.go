@@ -10,6 +10,8 @@ type EIPService interface {
 	List(params map[string]string) ([]EIP, error)
 	Create(params map[string]interface{}) (EIP, error)
 	Update(id string, params map[string]interface{}) (ActionResponse, error)
+	AttachPort(id string, port_id string, fix_ip_address string) (ActionResponse, error)
+	DetachPort(id string) (ActionResponse, error)
 	GetPortForwardingRule(id string, rule_id string) (PortForwardingRule, error)
 	CreatePortForwardingRule(id string, params map[string]interface{}) (PortForwardingRule, error)
 	UpdatePortForwardingRule(id string, rule_id string, params map[string]interface{}) (ActionResponse, error)
@@ -118,4 +120,12 @@ func (v *eip) UpdatePortForwardingRule(id string, rule_id string, params map[str
 }
 func (v *eip) DeletePortForwardingRule(id string, rule_id string) (ActionResponse, error) {
 	return v.client.PerformDelete("network/eip/" + id + "/port-forwarding-rule/" + rule_id)
+}
+
+func (v *eip) AttachPort(id string, port_id string, fix_ip_address string) (ActionResponse, error) {
+	return v.client.PerformAction("network/eip/"+id+"/associate", map[string]interface{}{"port_id": port_id})
+}
+
+func (v *eip) DetachPort(id string) (ActionResponse, error) {
+	return v.client.PerformAction("network/eip/"+id+"/associate", map[string]interface{}{})
 }

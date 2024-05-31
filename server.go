@@ -9,6 +9,7 @@ import (
 type ServerService interface {
 	Get(id string, more_info bool) (Server, error)
 	List(params map[string]string) ([]Server, error)
+	ListInterfaces(id string) ([]NetworkInterface, error)
 	GetVolumeAttachmentDetail(id string, volume_id string) (VolumeAttachmentDetail, error)
 	Create(params map[string]interface{}) (ServerCreatedResponse, error)
 	Rename(id, newName string) (ActionResponse, error)
@@ -39,6 +40,19 @@ type IpAddress struct {
 	MacAddress string `json:"OS-EXT-IPS-MAC:mac_addr"`
 }
 
+// Nic object
+
+type Nic struct {
+	Id        string `json:"id"`
+	NetworkID string `json:"net_id"`
+	// VpcID      string `json:"vpc_id"`
+	MacAddress string `json:"mac_addr"`
+	FixedIps   []struct {
+		SubnetID  string `json:"subnet_id"`
+		IPAddress string `json:"ip_address"`
+	} `json:"fixed_ips"`
+	SecurityGroups []string `json:"security_groups"`
+}
 type VolumeAttach struct {
 	ID                  string `json:"id"`
 	DeleteOnTermination bool   `json:"delete_on_termination"`
@@ -84,10 +98,10 @@ type Server struct {
 	VolumesAttached  []VolumeAttach        `json:"os-extended-volumes:volumes_attached"`
 	ServerGroups     []string              `json:"server_groups"`
 	BillingMode      string                `json:"billing_mode"`
-	Nics             []Nic                 `json:"nics"`
 	Volumes          []Volume              `json:"volumes"`
 	Description      string                `json:"description"`
 	Tags             []string              `json:"tags"`
+	Nics             []Nic                 `json:"nics"`
 	// Metadata   []any  `json:"metadata"`
 	// Image      string `json:"image"`
 	// DisplayText  string   `json:"display_text"`
@@ -112,6 +126,13 @@ func (s *server) Get(id string, more_info bool) (Server, error) {
 func (s *server) List(params map[string]string) ([]Server, error) {
 	restext, err := s.client.Get("server", params)
 	items := make([]Server, 0)
+	err = json.Unmarshal([]byte(restext), &items)
+	return items, err
+}
+
+func (s *server) ListInterfaces(id string) ([]NetworkInterface, error) {
+	restext, err := s.client.Get("server/"+id+"/interface", map[string]string{})
+	items := make([]NetworkInterface, 0)
 	err = json.Unmarshal([]byte(restext), &items)
 	return items, err
 }

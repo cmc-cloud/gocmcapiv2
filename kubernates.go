@@ -31,11 +31,11 @@ type Kubernates struct {
 		AvailabilityZone     string         `json:"availability_zone"`
 		KubeTag              string         `json:"kube_tag"`
 		DockerVolumeType     string         `json:"docker_volume_type"`
-		KubeDashboardEnabled BoolFromString `json:"kube_dashboard_enable"`
-		MetricsServerEnabled BoolFromString `json:"metrics_server_enable"`
-		NpdEnabled           BoolFromString `json:"npd_enable"`
-		AutoScalingEnabled   BoolFromString `json:"auto_scaling_enable"`
-		AutoHealingEnabled   BoolFromString `json:"auto_healing_enable"`
+		KubeDashboardEnabled BoolFromString `json:"kube_dashboard_enabled"`
+		MetricsServerEnabled BoolFromString `json:"metrics_server_enabled"`
+		NpdEnabled           BoolFromString `json:"npd_enabled"`
+		AutoScalingEnabled   BoolFromString `json:"auto_scaling_enabled"`
+		AutoHealingEnabled   BoolFromString `json:"auto_healing_enabled"`
 		MinNodeCount         IntFromString  `json:"min_node_count"`
 		MaxNodeCount         IntFromString  `json:"max_node_count"`
 		CalicoIpv4Pool       string         `json:"calico_ipv4pool"`
