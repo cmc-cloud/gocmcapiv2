@@ -62,6 +62,7 @@ type Client struct {
 	Subnet                   SubnetService
 	EIP                      EIPService
 	ELB                      ELBService
+	EFS                      EFSService
 	Certificate              CertificateService
 	DatabaseInstance         DatabaseInstanceService
 	DatabaseBackup           DatabaseBackupService
@@ -113,6 +114,7 @@ func NewClient(configs ClientConfigs) (*Client, error) {
 	c.NetworkInterface = &networkinterface{client: c}
 	c.EIP = &eip{client: c}
 	c.ELB = &elb{client: c}
+	c.EFS = &efs{client: c}
 	c.Certificate = &certificate{client: c}
 	c.Kubernates = &kubernetes{client: c}
 	c.DatabaseInstance = &databaseinstance{client: c}

@@ -16,28 +16,22 @@ type EFSService interface {
 
 // EFS object
 type EFS struct {
-	ID                 string `json:"id"`
-	Name               string `json:"name"`
-	Description        string `json:"description"`
-	ProvisioningStatus string `json:"provisioning_status"`
-	OperatingStatus    string `json:"operating_status"`
-	CreatedAt          string `json:"created_at"`
-	VipAddress         string `json:"vip_address"`
-	VipPortID          string `json:"vip_port_id"`
-	VipSubnetID        string `json:"vip_subnet_id"`
-	VipNetworkID       string `json:"vip_network_id"`
-	Listeners          []struct {
-		ID string `json:"id"`
-	} `json:"listeners"`
-	Pools []struct {
-		ID string `json:"id"`
-	} `json:"pools"`
-	FlavorID              string   `json:"flavor_id"`
-	VipQosPolicyID        string   `json:"vip_qos_policy_id"`
-	Tags                  []string `json:"tags"`
-	BillingMode           string   `json:"billing_mode"`
-	AvailabilityZone      string   `json:"availability_zone"`
-	DomesticBandwidthMbps int      `json:"domestic_bandwidth_mbps"`
+	ID           string   `json:"id"`
+	Name         string   `json:"name"`
+	Description  string   `json:"description"`
+	Type         string   `json:"type"`
+	Used         int      `json:"used"`
+	Capacity     int      `json:"capacity"`
+	ProtocolType string   `json:"protocol_type"`
+	VpcID        string   `json:"vpc_id"`
+	SubnetID     string   `json:"subnet_id"`
+	CreatedAt    string   `json:"created_at"`
+	Endpoint     string   `json:"endpoint"`
+	Tags         []string `json:"tags"`
+	Status       string   `json:"status"`
+	CommandLine  string   `json:"command_line"`
+	SharedPath   string   `json:"shared_path"`
+	BillingMode  string   `json:"billing_mode"`
 }
 
 type efs struct {

@@ -10,6 +10,7 @@ type BillingModeService interface {
 	SetLoadBalancerBilingMode(id string, billing_mode string) (ActionResponse, error)
 	SetKubernateBilingMode(id string, billing_mode string, node_group_role string) (ActionResponse, error)
 	SetVPNBilingMode(id string, billing_mode string) (ActionResponse, error)
+	SetEFSBilingMode(id string, billing_mode string) (ActionResponse, error)
 }
 
 type billingmode struct {
@@ -43,4 +44,7 @@ func (b *billingmode) SetKubernateBilingMode(id string, billing_mode string, nod
 }
 func (b *billingmode) SetVPNBilingMode(id string, billing_mode string) (ActionResponse, error) {
 	return b.SetBilingMode(map[string]interface{}{"resource_type": "VPN", "resource_id": id, "billing_mode": billing_mode})
+}
+func (b *billingmode) SetEFSBilingMode(id string, billing_mode string) (ActionResponse, error) {
+	return b.SetBilingMode(map[string]interface{}{"resource_type": "EFS", "resource_id": id, "billing_mode": billing_mode})
 }
