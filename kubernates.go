@@ -79,7 +79,7 @@ type KubernatesNodeGroup struct {
 	} `json:"nodes"`
 	BillingMode string `json:"billing_mode"`
 }
-type kubernates struct {
+type kubernetes struct {
 	client *Client
 }
 
@@ -88,8 +88,8 @@ type KubernatesCreatedResponse struct {
 	Success bool   `json:"success"`
 }
 
-// Get kubernates detail
-func (v *kubernates) Get(id string) (Kubernates, error) {
+// Get kubernetes detail
+func (v *kubernetes) Get(id string) (Kubernates, error) {
 	jsonStr, err := v.client.Get("kubernetes/cluster/"+id, map[string]string{})
 	var obj Kubernates
 	if err == nil {
@@ -98,13 +98,13 @@ func (v *kubernates) Get(id string) (Kubernates, error) {
 	return obj, err
 }
 
-func (s *kubernates) List(params map[string]string) ([]Kubernates, error) {
+func (s *kubernetes) List(params map[string]string) ([]Kubernates, error) {
 	restext, err := s.client.Get("kubernetes/cluster", params)
 	items := make([]Kubernates, 0)
 	err = json.Unmarshal([]byte(restext), &items)
 	return items, err
 }
-func (v *kubernates) GetNodeGroup(id string, nodegroup_id string) (KubernatesNodeGroup, error) {
+func (v *kubernetes) GetNodeGroup(id string, nodegroup_id string) (KubernatesNodeGroup, error) {
 	jsonStr, err := v.client.Get("kubernetes/cluster/"+id+"/nodegroup/"+nodegroup_id, map[string]string{})
 	var obj KubernatesNodeGroup
 	if err == nil {
@@ -113,19 +113,19 @@ func (v *kubernates) GetNodeGroup(id string, nodegroup_id string) (KubernatesNod
 	return obj, err
 }
 
-// Delete a kubernates
-func (v *kubernates) Delete(id string) (ActionResponse, error) {
+// Delete a kubernetes
+func (v *kubernetes) Delete(id string) (ActionResponse, error) {
 	return v.client.PerformDelete("kubernetes/cluster/" + id)
 }
-func (v *kubernates) DeleteNodeGroup(id string, nodegroup_id string) (ActionResponse, error) {
+func (v *kubernetes) DeleteNodeGroup(id string, nodegroup_id string) (ActionResponse, error) {
 	return v.client.PerformDelete("kubernetes/cluster/" + id + "/nodegroup/" + nodegroup_id)
 }
-func (v *kubernates) UpdateNodeCount(id string, node_count int) (ActionResponse, error) {
+func (v *kubernetes) UpdateNodeCount(id string, node_count int) (ActionResponse, error) {
 	return v.client.PerformUpdate("kubernetes/cluster/"+id, map[string]interface{}{
 		"node_count": node_count,
 	})
 }
-func (s *kubernates) Create(params map[string]interface{}) (KubernatesCreatedResponse, error) {
+func (s *kubernetes) Create(params map[string]interface{}) (KubernatesCreatedResponse, error) {
 	jsonStr, err := s.client.Post("kubernetes/cluster", params)
 	var response KubernatesCreatedResponse
 	if err != nil {
@@ -135,7 +135,7 @@ func (s *kubernates) Create(params map[string]interface{}) (KubernatesCreatedRes
 	return response, nil
 }
 
-func (s *kubernates) CreateNodeGroup(id string, params map[string]interface{}) (KubernatesNodeGroup, error) {
+func (s *kubernetes) CreateNodeGroup(id string, params map[string]interface{}) (KubernatesNodeGroup, error) {
 	jsonStr, err := s.client.Post("kubernetes/cluster/"+id+"/nodegroup", params)
 	var response KubernatesNodeGroup
 	if err != nil {
@@ -145,11 +145,11 @@ func (s *kubernates) CreateNodeGroup(id string, params map[string]interface{}) (
 	return response, nil
 }
 
-func (s *kubernates) ResizeNodeGroup(id string, params map[string]interface{}) (ActionResponse, error) {
+func (s *kubernetes) ResizeNodeGroup(id string, params map[string]interface{}) (ActionResponse, error) {
 	return s.client.PerformAction("kubernetes/cluster/"+id+"/resize", params)
 }
 
-func (s *kubernates) UpdateNodeGroup(id string, nodegroup_id string, min_node_count int, max_node_count int) (ActionResponse, error) {
+func (s *kubernetes) UpdateNodeGroup(id string, nodegroup_id string, min_node_count int, max_node_count int) (ActionResponse, error) {
 	return s.client.PerformUpdate("kubernetes/cluster/"+id+"/nodegroup/"+nodegroup_id, map[string]interface{}{
 		"min_node_count": min_node_count,
 		"max_node_count": max_node_count,

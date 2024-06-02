@@ -2,6 +2,7 @@ package gocmcapiv2
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 )
@@ -24,6 +25,15 @@ func Logo(pre string, object interface{}) {
 
 	// Print JSON string
 	logger.Println(pre + string(jsonString))
+}
+
+func convert2JsonString(object interface{}) string {
+	jsonString, err := json.Marshal(object)
+	if err != nil {
+		fmt.Printf("err %v", err)
+		return ""
+	}
+	return string(jsonString)
 }
 
 // Logs log string

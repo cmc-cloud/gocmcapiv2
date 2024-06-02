@@ -62,6 +62,7 @@ type Client struct {
 	Subnet                   SubnetService
 	EIP                      EIPService
 	ELB                      ELBService
+	Certificate              CertificateService
 	DatabaseInstance         DatabaseInstanceService
 	DatabaseBackup           DatabaseBackupService
 	DatabaseAutoBackup       DatabaseAutoBackupService
@@ -112,7 +113,8 @@ func NewClient(configs ClientConfigs) (*Client, error) {
 	c.NetworkInterface = &networkinterface{client: c}
 	c.EIP = &eip{client: c}
 	c.ELB = &elb{client: c}
-	c.Kubernates = &kubernates{client: c}
+	c.Certificate = &certificate{client: c}
+	c.Kubernates = &kubernetes{client: c}
 	c.DatabaseInstance = &databaseinstance{client: c}
 	c.DatabaseAutoBackup = &databaseautobackup{client: c}
 	c.DatabaseConfiguration = &databaseconfiguration{client: c}
@@ -151,7 +153,6 @@ func (c *Client) createRequest(params map[string]string, ctx context.Context) *r
 }
 func (c *Client) parseResponse(response *resty.Response, err error) (string, error) {
 	restext := response.String() // fmt.Sprint(response)
-	Logs("res = " + restext)
 	if err != nil {
 		return restext, err
 	}
@@ -189,13 +190,50 @@ func (c *Client) parseResponse(response *resty.Response, err error) (string, err
 
 // Get Request, return resty Response
 func (c *Client) Get(path string, params map[string]string) (string, error) {
-	Logs("call api GET " + c.Configs.APIEndpoint + "/" + path + ".json")
-	if len(params) > 1 {
-		Logo("params = ", params)
-	}
-
 	resp, err := c.createRequest(params, context.Background()).Get(c.Configs.APIEndpoint + "/" + path + ".json")
+	c._logRequest(path, params, "GET", resp)
 	return c.parseResponse(resp, err)
+}
+
+func (c *Client) Post(path string, params map[string]interface{}) (string, error) {
+	resp, err := c.createRequest(nil, context.Background()).SetBody(params).Post(c.Configs.APIEndpoint + "/" + path + ".json")
+	c._logRequest2(path, params, "POST", resp)
+	return c.parseResponse(resp, err)
+}
+
+// Put request
+func (c *Client) Put(path string, params map[string]interface{}) (string, error) {
+	resp, err := c.createRequest(nil, context.Background()).SetBody(params).Put(c.Configs.APIEndpoint + "/" + path + ".json")
+	c._logRequest2(path, params, "PUT", resp)
+	return c.parseResponse(resp, err)
+}
+
+// Delete request
+
+func (c *Client) Delete(path string, params map[string]string) (string, error) {
+	resp, err := c.createRequest(params, context.Background()).Delete(c.Configs.APIEndpoint + "/" + path + ".json")
+	c._logRequest(path, params, "DELETE", resp)
+	return c.parseResponse(resp, err)
+}
+
+func (c *Client) _logRequest(path string, params map[string]string, method string, response *resty.Response) {
+	// if len(params) > 1 {
+	// 	Logo("call api GET " + c.Configs.APIEndpoint + "/" + path + " params = ", params)
+	// }else{
+	// 	Logs("call api GET " + c.Configs.APIEndpoint + "/" + path + " params = ", params)
+	// }
+	delete(params, "api_key")
+	Logs(fmt.Sprintf("call api %s %s/%s params = %v, res = %s", method, c.Configs.APIEndpoint, path, convert2JsonString(params), response.String()))
+	// Logs("res = " + response.String())
+}
+func (c *Client) _logRequest2(path string, params map[string]interface{}, method string, response *resty.Response) {
+	// Logs("call api GET " + c.Configs.APIEndpoint + "/" + path + ".json")
+	// if len(params) > 1 {
+	// Logo("params = ", params)
+	// }
+	// Logs("res = " + response.String())
+	delete(params, "api_key")
+	Logs(fmt.Sprintf("call api %s %s/%s params = %s, res = %s", method, c.Configs.APIEndpoint, path, convert2JsonString(params), response.String()))
 }
 
 type ActionResponse struct {
@@ -234,38 +272,6 @@ func (c *Client) PerformUpdate(path string, params map[string]interface{}) (Acti
 
 func (c *Client) SimplePost(path string) (string, error) {
 	return c.Post(path, map[string]interface{}{})
-}
-func (c *Client) Post(path string, params map[string]interface{}) (string, error) {
-	// fmt.Println(c.apiURL+"/"+path+".json", params)
-	Logs("call api POST " + c.Configs.APIEndpoint + "/" + path + ".json")
-	if len(params) > 1 {
-		Logo("params = ", params)
-	}
-	resp, err := c.createRequest(nil, context.Background()).SetBody(params).Post(c.Configs.APIEndpoint + "/" + path + ".json")
-	return c.parseResponse(resp, err)
-}
-
-// Put request
-func (c *Client) Put(path string, params map[string]interface{}) (string, error) {
-	Logs("call api PUT " + c.Configs.APIEndpoint + "/" + path + ".json")
-	if len(params) > 1 {
-		Logo("params = ", params)
-	}
-	resp, err := c.createRequest(nil, context.Background()).SetBody(params).Put(c.Configs.APIEndpoint + "/" + path + ".json")
-	return c.parseResponse(resp, err)
-}
-
-// Delete request
-
-func (c *Client) Delete(path string, params map[string]string) (string, error) {
-	Logs("call api DELETE " + c.Configs.APIEndpoint + "/" + path + ".json")
-	if len(params) > 1 {
-		Logo("params = ", params)
-	}
-	resp, err := c.createRequest(params, context.Background()).Delete(c.Configs.APIEndpoint + "/" + path + ".json")
-	return c.parseResponse(resp, err)
-	// restext := fmt.Sprint(resp)
-	// return restext, err
 }
 
 // LongTask execute a action that return a task
