@@ -67,7 +67,7 @@ type Client struct {
 	DatabaseInstance         DatabaseInstanceService
 	DatabaseBackup           DatabaseBackupService
 	DatabaseAutoBackup       DatabaseAutoBackupService
-	Kubernates               KubernatesService
+	Kubernetes               KubernetesService
 	DatabaseConfiguration    DatabaseConfigurationService
 	SecurityGroup            SecurityGroupService
 	Keypair                  KeypairService
@@ -116,7 +116,7 @@ func NewClient(configs ClientConfigs) (*Client, error) {
 	c.ELB = &elb{client: c}
 	c.EFS = &efs{client: c}
 	c.Certificate = &certificate{client: c}
-	c.Kubernates = &kubernetes{client: c}
+	c.Kubernetes = &kubernetes{client: c}
 	c.DatabaseInstance = &databaseinstance{client: c}
 	c.DatabaseAutoBackup = &databaseautobackup{client: c}
 	c.DatabaseConfiguration = &databaseconfiguration{client: c}

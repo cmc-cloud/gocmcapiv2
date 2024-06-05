@@ -4,23 +4,23 @@ import (
 	"encoding/json"
 )
 
-// KubernatesService interface
-type KubernatesService interface {
-	Get(id string) (Kubernates, error)
-	List(params map[string]string) ([]Kubernates, error)
-	Create(params map[string]interface{}) (KubernatesCreatedResponse, error)
+// KubernetesService interface
+type KubernetesService interface {
+	Get(id string) (Kubernetes, error)
+	List(params map[string]string) ([]Kubernetes, error)
+	Create(params map[string]interface{}) (KubernetesCreatedResponse, error)
 	Delete(id string) (ActionResponse, error)
 	UpdateNodeCount(id string, node_count int) (ActionResponse, error)
 
-	GetNodeGroup(id string, nodegroup_id string) (KubernatesNodeGroup, error)
-	CreateNodeGroup(id string, params map[string]interface{}) (KubernatesNodeGroup, error)
+	GetNodeGroup(id string, nodegroup_id string) (KubernetesNodeGroup, error)
+	CreateNodeGroup(id string, params map[string]interface{}) (KubernetesNodeGroup, error)
 	DeleteNodeGroup(id string, nodegroup_id string) (ActionResponse, error)
 	ResizeNodeGroup(id string, params map[string]interface{}) (ActionResponse, error)
 	UpdateNodeGroup(id string, nodegroup_id string, min_node_count int, max_node_count int) (ActionResponse, error)
 }
 
-// Kubernates object
-type Kubernates struct {
+// Kubernetes object
+type Kubernetes struct {
 	ID               string `json:"uuid"`
 	Name             string `json:"name"`
 	Keypair          string `json:"keypair"`
@@ -52,7 +52,7 @@ type Kubernates struct {
 	CreateTimeout     int    `json:"create_timeout"`
 	CreatedAt         string `json:"created_at"`
 }
-type KubernatesNodeGroup struct {
+type KubernetesNodeGroup struct {
 	ID               string `json:"id"`
 	Name             string `json:"name"`
 	ClusterID        string `json:"cluster_id"`
@@ -83,30 +83,30 @@ type kubernetes struct {
 	client *Client
 }
 
-type KubernatesCreatedResponse struct {
+type KubernetesCreatedResponse struct {
 	ID      string `json:"uuid"`
 	Success bool   `json:"success"`
 }
 
 // Get kubernetes detail
-func (v *kubernetes) Get(id string) (Kubernates, error) {
+func (v *kubernetes) Get(id string) (Kubernetes, error) {
 	jsonStr, err := v.client.Get("kubernetes/cluster/"+id, map[string]string{})
-	var obj Kubernates
+	var obj Kubernetes
 	if err == nil {
 		err = json.Unmarshal([]byte(jsonStr), &obj)
 	}
 	return obj, err
 }
 
-func (s *kubernetes) List(params map[string]string) ([]Kubernates, error) {
+func (s *kubernetes) List(params map[string]string) ([]Kubernetes, error) {
 	restext, err := s.client.Get("kubernetes/cluster", params)
-	items := make([]Kubernates, 0)
+	items := make([]Kubernetes, 0)
 	err = json.Unmarshal([]byte(restext), &items)
 	return items, err
 }
-func (v *kubernetes) GetNodeGroup(id string, nodegroup_id string) (KubernatesNodeGroup, error) {
+func (v *kubernetes) GetNodeGroup(id string, nodegroup_id string) (KubernetesNodeGroup, error) {
 	jsonStr, err := v.client.Get("kubernetes/cluster/"+id+"/nodegroup/"+nodegroup_id, map[string]string{})
-	var obj KubernatesNodeGroup
+	var obj KubernetesNodeGroup
 	if err == nil {
 		err = json.Unmarshal([]byte(jsonStr), &obj)
 	}
@@ -125,9 +125,9 @@ func (v *kubernetes) UpdateNodeCount(id string, node_count int) (ActionResponse,
 		"node_count": node_count,
 	})
 }
-func (s *kubernetes) Create(params map[string]interface{}) (KubernatesCreatedResponse, error) {
+func (s *kubernetes) Create(params map[string]interface{}) (KubernetesCreatedResponse, error) {
 	jsonStr, err := s.client.Post("kubernetes/cluster", params)
-	var response KubernatesCreatedResponse
+	var response KubernetesCreatedResponse
 	if err != nil {
 		return response, err
 	}
@@ -135,9 +135,9 @@ func (s *kubernetes) Create(params map[string]interface{}) (KubernatesCreatedRes
 	return response, nil
 }
 
-func (s *kubernetes) CreateNodeGroup(id string, params map[string]interface{}) (KubernatesNodeGroup, error) {
+func (s *kubernetes) CreateNodeGroup(id string, params map[string]interface{}) (KubernetesNodeGroup, error) {
 	jsonStr, err := s.client.Post("kubernetes/cluster/"+id+"/nodegroup", params)
-	var response KubernatesNodeGroup
+	var response KubernetesNodeGroup
 	if err != nil {
 		return response, err
 	}
