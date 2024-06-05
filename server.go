@@ -160,7 +160,7 @@ func (s *server) Delete(id string) (ActionResponse, error) {
 	return s.client.PerformDelete("server/" + id)
 }
 func (s *server) Resize(id string, flavor_id string) (ActionResponse, error) {
-	return s.client.PerformAction("server/"+id+"/resize", map[string]interface{}{})
+	return s.client.PerformAction("server/"+id+"/resize", map[string]interface{}{"flavor_id": flavor_id})
 }
 func (s *server) ConfirmResize(id string) (ActionResponse, error) {
 	return s.client.PerformAction("server/"+id+"/confirm_resize", map[string]interface{}{})
