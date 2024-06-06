@@ -2,6 +2,7 @@ package gocmcapiv2
 
 import (
 	"encoding/json"
+	"strconv"
 )
 
 // KubernetesService interface
@@ -12,7 +13,7 @@ type KubernetesService interface {
 	Delete(id string) (ActionResponse, error)
 	UpdateNodeCount(id string, node_count int) (ActionResponse, error)
 
-	GetNodeGroups(id string) ([]KubernetesNodeGroup, error)
+	GetNodeGroups(id string, show_nodes bool) ([]KubernetesNodeGroup, error)
 	GetNodeGroup(id string, nodegroup_id string) (KubernetesNodeGroup, error)
 	CreateNodeGroup(id string, params map[string]interface{}) (KubernetesNodeGroup, error)
 	DeleteNodeGroup(id string, nodegroup_id string) (ActionResponse, error)
@@ -105,8 +106,8 @@ func (s *kubernetes) List(params map[string]string) ([]Kubernetes, error) {
 	err = json.Unmarshal([]byte(restext), &items)
 	return items, err
 }
-func (s *kubernetes) GetNodeGroups(id string) ([]KubernetesNodeGroup, error) {
-	restext, err := s.client.Get("kubernetes/cluster/"+id+"/nodegroup?show_nodes=false", map[string]string{})
+func (s *kubernetes) GetNodeGroups(id string, show_nodes bool) ([]KubernetesNodeGroup, error) {
+	restext, err := s.client.Get("kubernetes/cluster/"+id+"/nodegroup?show_nodes=false", map[string]string{"show_nodes": strconv.FormatBool(show_nodes)})
 	items := make([]KubernetesNodeGroup, 0)
 	err = json.Unmarshal([]byte(restext), &items)
 	return items, err
