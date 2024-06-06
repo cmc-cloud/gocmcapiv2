@@ -12,6 +12,7 @@ type KubernetesService interface {
 	Delete(id string) (ActionResponse, error)
 	UpdateNodeCount(id string, node_count int) (ActionResponse, error)
 
+	GetNodeGroups(id string) ([]KubernetesNodeGroup, error)
 	GetNodeGroup(id string, nodegroup_id string) (KubernetesNodeGroup, error)
 	CreateNodeGroup(id string, params map[string]interface{}) (KubernetesNodeGroup, error)
 	DeleteNodeGroup(id string, nodegroup_id string) (ActionResponse, error)
@@ -101,6 +102,12 @@ func (v *kubernetes) Get(id string) (Kubernetes, error) {
 func (s *kubernetes) List(params map[string]string) ([]Kubernetes, error) {
 	restext, err := s.client.Get("kubernetes/cluster", params)
 	items := make([]Kubernetes, 0)
+	err = json.Unmarshal([]byte(restext), &items)
+	return items, err
+}
+func (s *kubernetes) GetNodeGroups(id string) ([]KubernetesNodeGroup, error) {
+	restext, err := s.client.Get("kubernetes/cluster/"+id+"/nodegroup?show_nodes=false", map[string]string{})
+	items := make([]KubernetesNodeGroup, 0)
 	err = json.Unmarshal([]byte(restext), &items)
 	return items, err
 }
