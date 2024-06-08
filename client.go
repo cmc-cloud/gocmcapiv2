@@ -68,6 +68,7 @@ type Client struct {
 	DatabaseBackup           DatabaseBackupService
 	DatabaseAutoBackup       DatabaseAutoBackupService
 	Kubernetes               KubernetesService
+	Kubernetesv2             Kubernetesv2Service
 	DatabaseConfiguration    DatabaseConfigurationService
 	SecurityGroup            SecurityGroupService
 	Keypair                  KeypairService
@@ -117,6 +118,7 @@ func NewClient(configs ClientConfigs) (*Client, error) {
 	c.EFS = &efs{client: c}
 	c.Certificate = &certificate{client: c}
 	c.Kubernetes = &kubernetes{client: c}
+	c.Kubernetesv2 = &kubernetesv2{client: c}
 	c.DatabaseInstance = &databaseinstance{client: c}
 	c.DatabaseAutoBackup = &databaseautobackup{client: c}
 	c.DatabaseConfiguration = &databaseconfiguration{client: c}
@@ -169,6 +171,12 @@ func (c *Client) parseResponse(response *resty.Response, err error) (string, err
 			if code == http.StatusNotFound {
 				return restext, fmt.Errorf("%s: %w", apiError.Error.ErrorText, ErrNotFound)
 			}
+
+			// sua lai ma loi voi api cloudops-core
+			requestURL := response.Request.URL
+			if strings.Contains(requestURL, "cloudops-core") && apiError.Error.ErrorCode == 500 && strings.Contains(apiError.Error.ErrorText, "not found") {
+				return restext, fmt.Errorf("%s: %w", apiError.Error.ErrorText, ErrNotFound)
+			}
 			return restext, fmt.Errorf("Error %d: %s", apiError.Error.ErrorCode, apiError.Error.ErrorText)
 		}
 	}
@@ -192,20 +200,20 @@ func (c *Client) parseResponse(response *resty.Response, err error) (string, err
 
 // Get Request, return resty Response
 func (c *Client) Get(path string, params map[string]string) (string, error) {
-	resp, err := c.createRequest(params, context.Background()).Get(c.Configs.APIEndpoint + "/" + path + ".json")
+	resp, err := c.createRequest(params, context.Background()).Get(c.Configs.APIEndpoint + "/" + path)
 	c._logRequest(path, params, "GET", resp)
 	return c.parseResponse(resp, err)
 }
 
 func (c *Client) Post(path string, params map[string]interface{}) (string, error) {
-	resp, err := c.createRequest(nil, context.Background()).SetBody(params).Post(c.Configs.APIEndpoint + "/" + path + ".json")
+	resp, err := c.createRequest(nil, context.Background()).SetBody(params).Post(c.Configs.APIEndpoint + "/" + path)
 	c._logRequest2(path, params, "POST", resp)
 	return c.parseResponse(resp, err)
 }
 
 // Put request
 func (c *Client) Put(path string, params map[string]interface{}) (string, error) {
-	resp, err := c.createRequest(nil, context.Background()).SetBody(params).Put(c.Configs.APIEndpoint + "/" + path + ".json")
+	resp, err := c.createRequest(nil, context.Background()).SetBody(params).Put(c.Configs.APIEndpoint + "/" + path)
 	c._logRequest2(path, params, "PUT", resp)
 	return c.parseResponse(resp, err)
 }
@@ -213,7 +221,7 @@ func (c *Client) Put(path string, params map[string]interface{}) (string, error)
 // Delete request
 
 func (c *Client) Delete(path string, params map[string]string) (string, error) {
-	resp, err := c.createRequest(params, context.Background()).Delete(c.Configs.APIEndpoint + "/" + path + ".json")
+	resp, err := c.createRequest(params, context.Background()).Delete(c.Configs.APIEndpoint + "/" + path)
 	c._logRequest(path, params, "DELETE", resp)
 	return c.parseResponse(resp, err)
 }
@@ -229,7 +237,7 @@ func (c *Client) _logRequest(path string, params map[string]string, method strin
 	// Logs("res = " + response.String())
 }
 func (c *Client) _logRequest2(path string, params map[string]interface{}, method string, response *resty.Response) {
-	// Logs("call api GET " + c.Configs.APIEndpoint + "/" + path + ".json")
+	// Logs("call api GET " + c.Configs.APIEndpoint + "/" + path)
 	// if len(params) > 1 {
 	// Logo("params = ", params)
 	// }

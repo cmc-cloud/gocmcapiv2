@@ -35,6 +35,7 @@ type Subnet struct {
 	Tags            []string         `json:"tags"`
 	CreatedAt       string           `json:"created_at"`
 	VpcID           string           `json:"vpc_id"`
+	NetworkID       string           `json:"network_id"`
 }
 type subnet struct {
 	client *Client

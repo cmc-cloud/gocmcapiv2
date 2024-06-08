@@ -7,7 +7,7 @@ import (
 // FlavorService interface
 type FlavorService interface {
 	Get(id string) (Flavor, error)
-	List() ([]Flavor, error)
+	List(params map[string]string) ([]Flavor, error)
 }
 
 // Flavor object
@@ -41,8 +41,8 @@ func (v *flavor) Get(id string) (Flavor, error) {
 }
 
 // List lists all flavors. []*Flavor
-func (s *flavor) List() ([]Flavor, error) {
-	restext, err := s.client.Get("server/flavors", map[string]string{})
+func (s *flavor) List(params map[string]string) ([]Flavor, error) {
+	restext, err := s.client.Get("server/flavors", params)
 
 	flavors := make([]Flavor, 0)
 	err = json.Unmarshal([]byte(restext), &flavors)
