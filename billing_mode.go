@@ -1,5 +1,7 @@
 package gocmcapiv2
 
+import "encoding/json"
+
 // EIPService interface
 type BillingModeService interface {
 	SetServerBilingMode(id string, billing_mode string) (ActionResponse, error)
@@ -11,10 +13,29 @@ type BillingModeService interface {
 	SetKubernateBilingMode(id string, billing_mode string, node_group_role string) (ActionResponse, error)
 	SetVPNBilingMode(id string, billing_mode string) (ActionResponse, error)
 	SetEFSBilingMode(id string, billing_mode string) (ActionResponse, error)
+	SetRedisInstanceBilingMode(id string, billing_mode string) (ActionResponse, error)
+	GetBilingMode(id string, resource_type string) (string, error)
+}
+
+type BillingMode struct {
+	BillingMode string `json:"billing_mode"`
 }
 
 type billingmode struct {
 	client *Client
+}
+
+func (b *billingmode) GetBilingMode(id string, resource_type string) (string, error) {
+	jsonStr, err := b.client.Get("billing/get_billing_mode", map[string]string{
+		"id":            id,
+		"resource_type": resource_type,
+	})
+	var response BillingMode
+	if err != nil {
+		return "", err
+	}
+	json.Unmarshal([]byte(jsonStr), &response)
+	return response.BillingMode, nil
 }
 
 func (b *billingmode) SetBilingMode(params map[string]interface{}) (ActionResponse, error) {
@@ -47,4 +68,7 @@ func (b *billingmode) SetVPNBilingMode(id string, billing_mode string) (ActionRe
 }
 func (b *billingmode) SetEFSBilingMode(id string, billing_mode string) (ActionResponse, error) {
 	return b.SetBilingMode(map[string]interface{}{"resource_type": "EFS", "resource_id": id, "billing_mode": billing_mode})
+}
+func (b *billingmode) SetRedisInstanceBilingMode(id string, billing_mode string) (ActionResponse, error) {
+	return b.SetBilingMode(map[string]interface{}{"resource_type": "EC", "resource_id": id, "billing_mode": billing_mode})
 }

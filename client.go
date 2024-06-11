@@ -67,11 +67,14 @@ type Client struct {
 	DatabaseInstance         DatabaseInstanceService
 	DatabaseBackup           DatabaseBackupService
 	DatabaseAutoBackup       DatabaseAutoBackupService
+	RedisConfiguration       RedisConfigurationService
+	RedisInstance            RedisInstanceService
 	Kubernetes               KubernetesService
 	Kubernetesv2             Kubernetesv2Service
 	DatabaseConfiguration    DatabaseConfigurationService
 	SecurityGroup            SecurityGroupService
 	Keypair                  KeypairService
+	KeyManagement            KeyManagementService
 	Snapshot                 SnapshotService
 	Backup                   BackupService
 	AutoScalingConfiguration AutoScalingConfigurationService
@@ -119,11 +122,14 @@ func NewClient(configs ClientConfigs) (*Client, error) {
 	c.Certificate = &certificate{client: c}
 	c.Kubernetes = &kubernetes{client: c}
 	c.Kubernetesv2 = &kubernetesv2{client: c}
+	c.RedisConfiguration = &redisconfiguration{client: c}
+	c.RedisInstance = &redisinstance{client: c}
 	c.DatabaseInstance = &databaseinstance{client: c}
 	c.DatabaseAutoBackup = &databaseautobackup{client: c}
 	c.DatabaseConfiguration = &databaseconfiguration{client: c}
 	c.SecurityGroup = &securitygroup{client: c}
 	c.Keypair = &keypair{client: c}
+	c.KeyManagement = &keymanagement{client: c}
 	c.Snapshot = &snapshot{client: c}
 	c.Backup = &backup{client: c}
 	c.AutoScalingConfiguration = &asconfiguration{client: c}
@@ -198,7 +204,6 @@ func (c *Client) parseResponse(response *resty.Response, err error) (string, err
 	return restext, err
 }
 
-// Get Request, return resty Response
 func (c *Client) Get(path string, params map[string]string) (string, error) {
 	resp, err := c.createRequest(params, context.Background()).Get(c.Configs.APIEndpoint + "/" + path)
 	c._logRequest(path, params, "GET", resp)
@@ -211,37 +216,23 @@ func (c *Client) Post(path string, params map[string]interface{}) (string, error
 	return c.parseResponse(resp, err)
 }
 
-// Put request
 func (c *Client) Put(path string, params map[string]interface{}) (string, error) {
 	resp, err := c.createRequest(nil, context.Background()).SetBody(params).Put(c.Configs.APIEndpoint + "/" + path)
 	c._logRequest2(path, params, "PUT", resp)
 	return c.parseResponse(resp, err)
 }
 
-// Delete request
-
-func (c *Client) Delete(path string, params map[string]string) (string, error) {
-	resp, err := c.createRequest(params, context.Background()).Delete(c.Configs.APIEndpoint + "/" + path)
-	c._logRequest(path, params, "DELETE", resp)
+func (c *Client) Delete(path string, params map[string]interface{}) (string, error) {
+	resp, err := c.createRequest(nil, context.Background()).SetBody(params).Delete(c.Configs.APIEndpoint + "/" + path)
+	c._logRequest2(path, params, "DELETE", resp)
 	return c.parseResponse(resp, err)
 }
 
 func (c *Client) _logRequest(path string, params map[string]string, method string, response *resty.Response) {
-	// if len(params) > 1 {
-	// 	Logo("call api GET " + c.Configs.APIEndpoint + "/" + path + " params = ", params)
-	// }else{
-	// 	Logs("call api GET " + c.Configs.APIEndpoint + "/" + path + " params = ", params)
-	// }
 	delete(params, "api_key")
 	Logs(fmt.Sprintf("call api %s %s/%s params = %v, res = %s", method, c.Configs.APIEndpoint, path, convert2JsonString(params), response.String()))
-	// Logs("res = " + response.String())
 }
 func (c *Client) _logRequest2(path string, params map[string]interface{}, method string, response *resty.Response) {
-	// Logs("call api GET " + c.Configs.APIEndpoint + "/" + path)
-	// if len(params) > 1 {
-	// Logo("params = ", params)
-	// }
-	// Logs("res = " + response.String())
 	delete(params, "api_key")
 	Logs(fmt.Sprintf("call api %s %s/%s params = %s, res = %s", method, c.Configs.APIEndpoint, path, convert2JsonString(params), response.String()))
 }
@@ -250,8 +241,17 @@ type ActionResponse struct {
 	Success bool `json:"success"`
 }
 
+func (c *Client) PerformDeleteWithBody(path string, params map[string]interface{}) (ActionResponse, error) {
+	jsonStr, err := c.Delete(path, params)
+	var res ActionResponse
+	json.Unmarshal([]byte(jsonStr), &res)
+	if err != nil {
+		return res, err
+	}
+	return res, err
+}
 func (c *Client) PerformDelete(path string) (ActionResponse, error) {
-	jsonStr, err := c.Delete(path, map[string]string{})
+	jsonStr, err := c.Delete(path, map[string]interface{}{})
 	var res ActionResponse
 	json.Unmarshal([]byte(jsonStr), &res)
 	if err != nil {
@@ -285,83 +285,83 @@ func (c *Client) SimplePost(path string) (string, error) {
 }
 
 // LongTask execute a action that return a task
-func (c *Client) LongTask(action string, id string, params map[string]interface{}, timeSettings TimeSettings) (TaskStatus, error) {
-	if params == nil {
-		params = make(map[string]interface{})
-	}
-	if id != "" {
-		params["id"] = id
-	}
+// func (c *Client) LongTask(action string, id string, params map[string]interface{}, timeSettings TimeSettings) (TaskStatus, error) {
+// 	if params == nil {
+// 		params = make(map[string]interface{})
+// 	}
+// 	if id != "" {
+// 		params["id"] = id
+// 	}
 
-	jsonStr, err := c.Post(action, params)
-	var task Task
-	var taskResponse TaskStatus
-	json.Unmarshal([]byte(jsonStr), &task)
+// 	jsonStr, err := c.Post(action, params)
+// 	var task Task
+// 	var taskResponse TaskStatus
+// 	json.Unmarshal([]byte(jsonStr), &task)
 
-	if err != nil {
-		return taskResponse, err
-	}
-	taskResponse, err = c.waitForTaskFinished(task.TaskID, timeSettings)
-	if err != nil {
-		return taskResponse, fmt.Errorf("Error perform action %s: %s, params: %+v", action, err, params)
-	}
-	return taskResponse, err
-}
+// 	if err != nil {
+// 		return taskResponse, err
+// 	}
+// 	taskResponse, err = c.waitForTaskFinished(task.TaskID, timeSettings)
+// 	if err != nil {
+// 		return taskResponse, fmt.Errorf("Error perform action %s: %s, params: %+v", action, err, params)
+// 	}
+// 	return taskResponse, err
+// }
 
-// LongDeleteTask execute a action that return a task
-func (c *Client) LongDeleteTask(action string, id string, params map[string]string, timeSettings TimeSettings) (TaskStatus, error) {
-	if params == nil {
-		params = make(map[string]string)
-	}
-	if id != "" {
-		params["id"] = id
-	}
+// // LongDeleteTask execute a action that return a task
+// func (c *Client) LongDeleteTask(action string, id string, params map[string]string, timeSettings TimeSettings) (TaskStatus, error) {
+// 	if params == nil {
+// 		params = make(map[string]string)
+// 	}
+// 	if id != "" {
+// 		params["id"] = id
+// 	}
 
-	jsonStr, err := c.Delete(action, params)
-	var task Task
-	var taskResponse TaskStatus
-	json.Unmarshal([]byte(jsonStr), &task)
+// 	jsonStr, err := c.Delete(action, params)
+// 	var task Task
+// 	var taskResponse TaskStatus
+// 	json.Unmarshal([]byte(jsonStr), &task)
 
-	if err != nil {
-		return taskResponse, err
-	}
-	taskResponse, err = c.waitForTaskFinished(task.TaskID, timeSettings)
-	if err != nil {
-		return taskResponse, fmt.Errorf("Error perform action %s: %s, params: %+v", action, err, params)
-	}
-	return taskResponse, err
-}
+// 	if err != nil {
+// 		return taskResponse, err
+// 	}
+// 	taskResponse, err = c.waitForTaskFinished(task.TaskID, timeSettings)
+// 	if err != nil {
+// 		return taskResponse, fmt.Errorf("Error perform action %s: %s, params: %+v", action, err, params)
+// 	}
+// 	return taskResponse, err
+// }
 
 // Order create an resource order
-func (c *Client) Order(action string, id string, params map[string]interface{}, timeSettings TimeSettings) (OrderResponse, TaskStatus, error) {
-	if params == nil {
-		params = make(map[string]interface{})
-	}
-	if id != "" {
-		params["id"] = id
-	}
+// func (c *Client) Order(action string, id string, params map[string]interface{}, timeSettings TimeSettings) (OrderResponse, TaskStatus, error) {
+// 	if params == nil {
+// 		params = make(map[string]interface{})
+// 	}
+// 	if id != "" {
+// 		params["id"] = id
+// 	}
 
-	jsonStr, err := c.Post(action, params)
-	var order OrderResponse
-	var taskStatus TaskStatus
+// 	jsonStr, err := c.Post(action, params)
+// 	var order OrderResponse
+// 	var taskStatus TaskStatus
 
-	if err != nil {
-		return order, taskStatus, fmt.Errorf("Error perform action %s: %s, params: %+v", action, err, params)
-	}
+// 	if err != nil {
+// 		return order, taskStatus, fmt.Errorf("Error perform action %s: %s, params: %+v", action, err, params)
+// 	}
 
-	json.Unmarshal([]byte(jsonStr), &order)
-	if !order.Paid {
-		return order, taskStatus, fmt.Errorf("Error perform action %s cause order is not paid, input = %+v, response = %s", action, params, jsonStr)
-		//errors.New("Can not perform this action cause of payment failed, connect to CMC administrator for your advice")
-	}
+// 	json.Unmarshal([]byte(jsonStr), &order)
+// 	if !order.Paid {
+// 		return order, taskStatus, fmt.Errorf("Error perform action %s cause order is not paid, input = %+v, response = %s", action, params, jsonStr)
+// 		//errors.New("Can not perform this action cause of payment failed, connect to CMC administrator for your advice")
+// 	}
 
-	taskStatus, err = c.waitForTaskFinished(order.TaskID, timeSettings)
-	if err != nil {
-		return order, taskStatus, fmt.Errorf("Error perform action %s with task id (%s): %s", action, order.TaskID, err)
-	}
+// 	taskStatus, err = c.waitForTaskFinished(order.TaskID, timeSettings)
+// 	if err != nil {
+// 		return order, taskStatus, fmt.Errorf("Error perform action %s with task id (%s): %s", action, order.TaskID, err)
+// 	}
 
-	return order, taskStatus, err
-}
+// 	return order, taskStatus, err
+// }
 
 // TimeSettings object
 type TimeSettings struct {
