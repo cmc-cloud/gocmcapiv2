@@ -8,14 +8,13 @@ import (
 type KeyManagementService interface {
 	Get(id string) (KeyManagementContainer, error)
 	List(params map[string]string) ([]KeyManagementContainer, error)
-	Create(params map[string]interface{}) (KeyManagementContainer, error)
+	Create(params map[string]interface{}) (KeyManagementContainerCreateResponse, error)
 	Delete(id string) (ActionResponse, error)
 
-	GetSecrets(id string, show_nodes bool) ([]KeyManagementSecret, error)
-	GetSecret(id string, secret_id string) (KeyManagementSecret, error)
-	CreateSecret(id string, params map[string]interface{}) (KeyManagementSecret, error)
-	DeleteSecret(id string, secret_id string) (ActionResponse, error)
-	UpdateSecret(id string, params map[string]interface{}) (ActionResponse, error)
+	GetSecrets(id string) ([]KeyManagementSecret, error)
+	GetSecret(id string) (KeyManagementSecret, error)
+	CreateSecret(params map[string]interface{}) (KeyManagementSecretCreateResponse, error)
+	DeleteSecret(secret_id string) (ActionResponse, error)
 }
 
 type KeyManagementContainerWrapper struct {
@@ -47,28 +46,34 @@ type KeyManagementSecretListWrapper struct {
 }
 
 type KeyManagementContainer struct {
-	ID      string `json:"containerUuid"`
-	Name    string `json:"containerName"`
-	Type    string `json:"containerType"`
-	Created string `json:"created"`
-	Updated string `json:"updated"`
+	ID           string `json:"containerUuid"`
+	Name         string `json:"containerName"`
+	Type         string `json:"containerType"`
+	ContainerRef string `json:"containerRef"`
+	Created      string `json:"created"`
+}
+
+type KeyManagementContainerCreateResponse struct {
+	Data struct {
+		ID           string `json:"containerUuid"`
+		ContainerRef string `json:"containerRef"`
+	} `json:"data"`
+}
+
+type KeyManagementSecretCreateResponse struct {
+	Data struct {
+		Secrets []struct {
+			ID string `json:"secretUuid"`
+		} `json:"secrets"`
+	} `json:"data"`
 }
 
 type KeyManagementSecret struct {
-	Algorithm  string `json:"algorithm"`
-	BitLength  string `json:"bit_length"`
-	Created    string `json:"created"`
-	CreatorID  string `json:"creator_id"`
-	Expiration string `json:"expiration"`
-	Mode       string `json:"mode"`
 	Name       string `json:"name"`
-	SecretRef  string `json:"secret_ref"`
-	SecretType string `json:"secret_type"`
-	Status     string `json:"status"`
-	Updated    string `json:"updated"`
-	// ContentTypes struct {
-	// 	Default string `json:"default"`
-	// } `json:"content_types"`
+	ID         string `json:"secretUuid"`
+	SecretType string `json:"secretType"`
+	ExpireTime string `json:"expireTime"`
+	Created    string `json:"created"`
 }
 type keymanagement struct {
 	client *Client
@@ -99,8 +104,8 @@ func (s *keymanagement) List(params map[string]string) ([]KeyManagementContainer
 	}
 	return obj.Data.Docs, err
 }
-func (s *keymanagement) GetSecrets(id string, show_nodes bool) ([]KeyManagementSecret, error) {
-	jsonStr, err := s.client.Get("cloudops-core/api/v1/bbc-keys/containers/"+id+"/node-groups", map[string]string{})
+func (s *keymanagement) GetSecrets(id string) ([]KeyManagementSecret, error) {
+	jsonStr, err := s.client.Get("cloudops-core/api/v1/bbc-keys/containers/"+id, map[string]string{})
 	var obj KeyManagementSecretListWrapper
 	if err != nil {
 		var nilres []KeyManagementSecret
@@ -109,8 +114,8 @@ func (s *keymanagement) GetSecrets(id string, show_nodes bool) ([]KeyManagementS
 	err = json.Unmarshal([]byte(jsonStr), &obj)
 	return obj.Data.Docs, err
 }
-func (v *keymanagement) GetSecret(id string, secret_id string) (KeyManagementSecret, error) {
-	jsonStr, err := v.client.Get("cloudops-core/api/v1/bbc-keys/containers/"+id+"/node-groups/"+secret_id, map[string]string{})
+func (v *keymanagement) GetSecret(secret_id string) (KeyManagementSecret, error) {
+	jsonStr, err := v.client.Get("cloudops-core/api/v1/bbc-keys/secrets/"+secret_id, map[string]string{})
 	var response KeyManagementSecretWrapper
 	if err != nil {
 		var nilres KeyManagementSecret
@@ -125,12 +130,12 @@ func (v *keymanagement) GetSecret(id string, secret_id string) (KeyManagementSec
 func (v *keymanagement) Delete(id string) (ActionResponse, error) {
 	return v.client.PerformDelete("cloudops-core/api/v1/bbc-keys/containers/" + id)
 }
-func (v *keymanagement) DeleteSecret(id string, secret_id string) (ActionResponse, error) {
-	return v.client.PerformDelete("cloudops-core/api/v1/bbc-keys/containers/" + id + "/secrets/" + secret_id)
+func (v *keymanagement) DeleteSecret(secret_id string) (ActionResponse, error) {
+	return v.client.PerformDelete("cloudops-core/api/v1/bbc-keys/secrets/" + secret_id)
 }
-func (s *keymanagement) Create(params map[string]interface{}) (KeyManagementContainer, error) {
+func (s *keymanagement) Create(params map[string]interface{}) (KeyManagementContainerCreateResponse, error) {
 	jsonStr, err := s.client.Post("cloudops-core/api/v1/bbc-keys/containers", params)
-	var response KeyManagementContainer
+	var response KeyManagementContainerCreateResponse
 	if err != nil {
 		return response, err
 	}
@@ -138,17 +143,12 @@ func (s *keymanagement) Create(params map[string]interface{}) (KeyManagementCont
 	return response, nil
 }
 
-func (s *keymanagement) CreateSecret(id string, params map[string]interface{}) (KeyManagementSecret, error) {
-	jsonStr, err := s.client.Post("cloudops-core/api/v1/bbc-keys/containers/"+id+"/secrets", params)
-	var response KeyManagementSecretWrapper
+func (s *keymanagement) CreateSecret(params map[string]interface{}) (KeyManagementSecretCreateResponse, error) {
+	jsonStr, err := s.client.Post("cloudops-core/api/v1/bbc-keys/secrets", params)
+	var response KeyManagementSecretCreateResponse
 	if err != nil {
-		var nilres KeyManagementSecret
-		return nilres, err
+		return response, err
 	}
 	json.Unmarshal([]byte(jsonStr), &response)
-	return response.Data, nil
-}
-
-func (s *keymanagement) UpdateSecret(id string, params map[string]interface{}) (ActionResponse, error) {
-	return s.client.PerformAction("cloudops-core/api/v1/bbc-keys/containers/"+id+"/secrets", params)
+	return response, nil
 }
