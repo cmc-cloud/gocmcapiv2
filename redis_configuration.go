@@ -69,20 +69,30 @@ type redisconfiguration struct {
 // Get redisconfiguration detail
 func (v *redisconfiguration) Get(id string) (RedisConfiguration, error) {
 	jsonStr, err := v.client.Get("cloudops-core/api/v1/dbaas/group-configuration/"+id, map[string]string{})
-	var obj RedisConfigurationWrapper
-	if err == nil {
-		err = json.Unmarshal([]byte(jsonStr), &obj)
+	var response RedisConfigurationWrapper
+	var nilres RedisConfiguration
+	if err != nil {
+		return nilres, err
 	}
-	return obj.Data, err
+	json.Unmarshal([]byte(jsonStr), &response)
+	if err != nil {
+		return nilres, err
+	}
+	return response.Data, nil
 }
 
 func (s *redisconfiguration) List(params map[string]string) ([]RedisConfiguration, error) {
 	jsonStr, err := s.client.Get("cloudops-core/api/v1/dbaas/group-configuration", params)
-	var obj RedisConfigurationListWrapper
-	if err == nil {
-		err = json.Unmarshal([]byte(jsonStr), &obj)
+	var response RedisConfigurationListWrapper
+	var nilres []RedisConfiguration
+	if err != nil {
+		return nilres, err
 	}
-	return obj.Data.Docs, err
+	json.Unmarshal([]byte(jsonStr), &response)
+	if err != nil {
+		return nilres, err
+	}
+	return response.Data.Docs, nil
 }
 
 // Delete a redisconfiguration

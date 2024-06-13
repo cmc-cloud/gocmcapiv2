@@ -67,6 +67,8 @@ type Client struct {
 	DatabaseInstance         DatabaseInstanceService
 	DatabaseBackup           DatabaseBackupService
 	DatabaseAutoBackup       DatabaseAutoBackupService
+	ContainerRegistry        ContainerRegistryService
+	DevopsProject            DevopsProjectService
 	RedisConfiguration       RedisConfigurationService
 	RedisInstance            RedisInstanceService
 	Kubernetes               KubernetesService
@@ -122,6 +124,8 @@ func NewClient(configs ClientConfigs) (*Client, error) {
 	c.Certificate = &certificate{client: c}
 	c.Kubernetes = &kubernetes{client: c}
 	c.Kubernetesv2 = &kubernetesv2{client: c}
+	c.DevopsProject = &devopsproject{client: c}
+	c.ContainerRegistry = &containerregistry{client: c}
 	c.RedisConfiguration = &redisconfiguration{client: c}
 	c.RedisInstance = &redisinstance{client: c}
 	c.DatabaseInstance = &databaseinstance{client: c}
