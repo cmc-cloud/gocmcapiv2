@@ -7,6 +7,7 @@ import (
 // RedisConfigurationService interface
 type RedisConfigurationService interface {
 	Get(id string) (RedisConfiguration, error)
+	GetDefaultConfiguration(id string) (RedisConfiguration, error)
 	List(params map[string]string) ([]RedisConfiguration, error)
 	Create(params map[string]interface{}) (RedisConfiguration, error)
 	Delete(id string) (ActionResponse, error)
@@ -81,6 +82,19 @@ func (v *redisconfiguration) Get(id string) (RedisConfiguration, error) {
 	return response.Data, nil
 }
 
+func (v *redisconfiguration) GetDefaultConfiguration(id string) (RedisConfiguration, error) {
+	jsonStr, err := v.client.Get("cloudops-core/api/v1/dbaas/configurations-default/"+id, map[string]string{})
+	var response RedisConfigurationWrapper
+	var nilres RedisConfiguration
+	if err != nil {
+		return nilres, err
+	}
+	json.Unmarshal([]byte(jsonStr), &response)
+	if err != nil {
+		return nilres, err
+	}
+	return response.Data, nil
+}
 func (s *redisconfiguration) List(params map[string]string) ([]RedisConfiguration, error) {
 	jsonStr, err := s.client.Get("cloudops-core/api/v1/dbaas/group-configuration", params)
 	var response RedisConfigurationListWrapper

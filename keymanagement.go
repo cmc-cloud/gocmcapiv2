@@ -15,6 +15,11 @@ type KeyManagementService interface {
 	GetSecret(id string) (KeyManagementSecret, error)
 	CreateSecret(params map[string]interface{}) (KeyManagementSecretCreateResponse, error)
 	DeleteSecret(secret_id string) (ActionResponse, error)
+
+	GetToken(id string) (KeyManagementToken, error)
+	CreateToken(params map[string]interface{}) (KeyManagementTokenCreateResponse, error)
+	RenewToken(id string, expiredDate string) (ActionResponse, error)
+	DeleteToken(id string) (ActionResponse, error)
 }
 
 type KeyManagementContainerWrapper struct {
@@ -23,6 +28,10 @@ type KeyManagementContainerWrapper struct {
 
 type KeyManagementSecretWrapper struct {
 	Data KeyManagementSecret `json:"data"`
+}
+
+type KeyManagementTokenWrapper struct {
+	Data KeyManagementToken `json:"data"`
 }
 
 type KeyManagementContainerListWrapper struct {
@@ -52,7 +61,16 @@ type KeyManagementContainer struct {
 	ContainerRef string `json:"containerRef"`
 	Created      string `json:"created"`
 }
-
+type KeyManagementToken struct {
+	TokenID        int    `json:"tokenId"`
+	Token          string `json:"token"`
+	ContainerNames []struct {
+		ContainerName string `json:"containerName"`
+	} `json:"containerNames"`
+	ExpireDateTime string `json:"expireDateTime"`
+	Description    string `json:"description"`
+	CreatedTime    string `json:"createdTime"`
+}
 type KeyManagementContainerCreateResponse struct {
 	Data struct {
 		ID           string `json:"containerUuid"`
@@ -67,7 +85,12 @@ type KeyManagementSecretCreateResponse struct {
 		} `json:"secrets"`
 	} `json:"data"`
 }
-
+type KeyManagementTokenCreateResponse struct {
+	Data struct {
+		Token string `json:"token"`
+		ID    string `json:"id"`
+	} `json:"data"`
+}
 type KeyManagementSecret struct {
 	Name       string `json:"name"`
 	ID         string `json:"secretUuid"`
@@ -90,6 +113,16 @@ type KeyManagementCreatedResponse struct {
 func (v *keymanagement) Get(id string) (KeyManagementContainer, error) {
 	jsonStr, err := v.client.Get("cloudops-core/api/v1/bbc-keys/containers/"+id, map[string]string{})
 	var obj KeyManagementContainerWrapper
+	if err == nil {
+		err = json.Unmarshal([]byte(jsonStr), &obj)
+	}
+	return obj.Data, err
+}
+
+// Get keymanagement detail
+func (v *keymanagement) GetToken(id string) (KeyManagementToken, error) {
+	jsonStr, err := v.client.Get("cloudops-core/api/v1/bbc-keys/tokens/"+id, map[string]string{})
+	var obj KeyManagementTokenWrapper
 	if err == nil {
 		err = json.Unmarshal([]byte(jsonStr), &obj)
 	}
@@ -151,4 +184,23 @@ func (s *keymanagement) CreateSecret(params map[string]interface{}) (KeyManageme
 	}
 	json.Unmarshal([]byte(jsonStr), &response)
 	return response, nil
+}
+
+func (s *keymanagement) CreateToken(params map[string]interface{}) (KeyManagementTokenCreateResponse, error) {
+	jsonStr, err := s.client.Post("cloudops-core/api/v1/bbc-keys/tokens", params)
+	var response KeyManagementTokenCreateResponse
+	if err != nil {
+		return response, err
+	}
+	json.Unmarshal([]byte(jsonStr), &response)
+	return response, nil
+}
+
+func (v *keymanagement) DeleteToken(id string) (ActionResponse, error) {
+	return v.client.PerformDelete("cloudops-core/api/v1/bbc-keys/tokens/" + id)
+}
+func (v *keymanagement) RenewToken(id string, expiredDate string) (ActionResponse, error) {
+	return v.client.PerformAction("cloudops-core/api/v1/bbc-keys/tokens/"+id+"/renew", map[string]interface{}{
+		"expiredDate": expiredDate,
+	})
 }

@@ -43,7 +43,7 @@ type IpAddress struct {
 // Nic object
 
 type Nic struct {
-	Id        string `json:"id"`
+	ID        string `json:"id"`
 	NetworkID string `json:"net_id"`
 	// VpcID      string `json:"vpc_id"`
 	MacAddress string `json:"mac_addr"`

@@ -127,5 +127,5 @@ func (v *eip) AttachPort(id string, port_id string, fix_ip_address string) (Acti
 }
 
 func (v *eip) DetachPort(id string) (ActionResponse, error) {
-	return v.client.PerformAction("network/eip/"+id+"/associate", map[string]interface{}{})
+	return v.client.PerformAction("network/eip/"+id+"/disassociate", map[string]interface{}{})
 }
