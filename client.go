@@ -5,10 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/go-resty/resty/v2"
 )
@@ -49,6 +47,7 @@ type ClientConfigs struct {
 // Client represents CMC Cloud API client.
 type Client struct {
 	Configs                  ClientConfigs
+	Account                  AccountService
 	Image                    ImageService
 	Flavor                   FlavorService
 	Server                   ServerService
@@ -63,6 +62,15 @@ type Client struct {
 	EIP                      EIPService
 	ELB                      ELBService
 	EFS                      EFSService
+	VA                       VAService
+	Waf                      WafService
+	WafIP                    WafIPService
+	WafRule                  WafRuleService
+	WafCert                  WafCertService
+	Dns                      DnsZoneService
+	DnsRecord                DnsRecordService
+	DnsAcl                   DnsAclService
+	WafWhitelist             WafWhitelistService
 	Certificate              CertificateService
 	DatabaseInstance         DatabaseInstanceService
 	DatabaseBackup           DatabaseBackupService
@@ -95,6 +103,13 @@ type APIError struct {
 	// ErrorCode int    `json:"error_code"`
 	// ErrorText string `json:"error_text"`
 }
+type SecurityAPIError struct {
+	ErrorCode int    `json:"code"`
+	ErrorText string `json:"error"`
+}
+type DnsAPIError struct {
+	ErrorText string `json:"error"`
+}
 
 // Timeout is timeout info for a long task
 // type Timeout struct {
@@ -107,6 +122,7 @@ type APIError struct {
 func NewClient(configs ClientConfigs) (*Client, error) {
 	c := &Client{}
 	c.Configs = configs
+	c.Account = &account{client: c}
 	c.Image = &image{client: c}
 	c.Flavor = &flavor{client: c}
 	c.Server = &server{client: c}
@@ -121,6 +137,15 @@ func NewClient(configs ClientConfigs) (*Client, error) {
 	c.EIP = &eip{client: c}
 	c.ELB = &elb{client: c}
 	c.EFS = &efs{client: c}
+	c.VA = &va{client: c}
+	c.Waf = &waf{client: c}
+	c.WafIP = &wafip{client: c}
+	c.WafRule = &wafrule{client: c}
+	c.WafCert = &wafcert{client: c}
+	c.Dns = &dns{client: c}
+	c.DnsRecord = &dnsrecord{client: c}
+	c.DnsAcl = &dnsacl{client: c}
+	c.WafWhitelist = &wafwhitelist{client: c}
 	c.Certificate = &certificate{client: c}
 	c.Kubernetes = &kubernetes{client: c}
 	c.Kubernetesv2 = &kubernetesv2{client: c}
@@ -205,6 +230,33 @@ func (c *Client) parseResponse(response *resty.Response, err error) (string, err
 		}
 		return restext, fmt.Errorf("Error %d: %s", apiError.Error.ErrorCode, apiError.Error.ErrorText)
 	}
+
+	// security api
+	if strings.Contains(restext, "code") && strings.Contains(restext, "error") {
+		var apiError SecurityAPIError
+		err := json.Unmarshal([]byte(restext), &apiError)
+		if err == nil {
+			if apiError.ErrorCode == 0 {
+				apiError.ErrorCode = response.StatusCode()
+			}
+
+			code := apiError.ErrorCode
+			if code == http.StatusNotFound {
+				return restext, fmt.Errorf("%s: %w", apiError.ErrorText, ErrNotFound)
+			}
+			return restext, fmt.Errorf("Error %d: %s", apiError.ErrorCode, apiError.ErrorText)
+		}
+	}
+
+	// {"success":false,"error":"Zone field is missing or invalid","messages":[],"request_id":"d348a1d6-4f02-4c86-886b-0ef69fcbf696"}
+	// dns api
+	if strings.Contains(restext, "\"success\":false") && strings.Contains(restext, "error") {
+		var apiError DnsAPIError
+		err := json.Unmarshal([]byte(restext), &apiError)
+		if err == nil {
+			return restext, fmt.Errorf("Erro: %s", apiError.ErrorText)
+		}
+	}
 	return restext, err
 }
 
@@ -226,6 +278,11 @@ func (c *Client) Put(path string, params map[string]interface{}) (string, error)
 	return c.parseResponse(resp, err)
 }
 
+func (c *Client) Patch(path string, params map[string]interface{}) (string, error) {
+	resp, err := c.createRequest(nil, context.Background()).SetBody(params).Patch(c.Configs.APIEndpoint + "/" + path)
+	c._logRequest2(path, params, "PATCH", resp)
+	return c.parseResponse(resp, err)
+}
 func (c *Client) Delete(path string, params map[string]interface{}) (string, error) {
 	resp, err := c.createRequest(nil, context.Background()).SetBody(params).Delete(c.Configs.APIEndpoint + "/" + path)
 	c._logRequest2(path, params, "DELETE", resp)
@@ -284,149 +341,79 @@ func (c *Client) PerformUpdate(path string, params map[string]interface{}) (Acti
 	return res, err
 }
 
+func (c *Client) PerformPatch(path string, params map[string]interface{}) (ActionResponse, error) {
+	jsonStr, err := c.Patch(path, params)
+	var res ActionResponse
+	json.Unmarshal([]byte(jsonStr), &res)
+	if err != nil {
+		return res, err
+	}
+	return res, err
+}
 func (c *Client) SimplePost(path string) (string, error) {
 	return c.Post(path, map[string]interface{}{})
 }
 
-// LongTask execute a action that return a task
-// func (c *Client) LongTask(action string, id string, params map[string]interface{}, timeSettings TimeSettings) (TaskStatus, error) {
-// 	if params == nil {
-// 		params = make(map[string]interface{})
-// 	}
-// 	if id != "" {
-// 		params["id"] = id
-// 	}
-
-// 	jsonStr, err := c.Post(action, params)
-// 	var task Task
-// 	var taskResponse TaskStatus
-// 	json.Unmarshal([]byte(jsonStr), &task)
-
-// 	if err != nil {
-// 		return taskResponse, err
-// 	}
-// 	taskResponse, err = c.waitForTaskFinished(task.TaskID, timeSettings)
-// 	if err != nil {
-// 		return taskResponse, fmt.Errorf("Error perform action %s: %s, params: %+v", action, err, params)
-// 	}
-// 	return taskResponse, err
-// }
-
-// // LongDeleteTask execute a action that return a task
-// func (c *Client) LongDeleteTask(action string, id string, params map[string]string, timeSettings TimeSettings) (TaskStatus, error) {
-// 	if params == nil {
-// 		params = make(map[string]string)
-// 	}
-// 	if id != "" {
-// 		params["id"] = id
-// 	}
-
-// 	jsonStr, err := c.Delete(action, params)
-// 	var task Task
-// 	var taskResponse TaskStatus
-// 	json.Unmarshal([]byte(jsonStr), &task)
-
-// 	if err != nil {
-// 		return taskResponse, err
-// 	}
-// 	taskResponse, err = c.waitForTaskFinished(task.TaskID, timeSettings)
-// 	if err != nil {
-// 		return taskResponse, fmt.Errorf("Error perform action %s: %s, params: %+v", action, err, params)
-// 	}
-// 	return taskResponse, err
-// }
-
-// Order create an resource order
-// func (c *Client) Order(action string, id string, params map[string]interface{}, timeSettings TimeSettings) (OrderResponse, TaskStatus, error) {
-// 	if params == nil {
-// 		params = make(map[string]interface{})
-// 	}
-// 	if id != "" {
-// 		params["id"] = id
-// 	}
-
-// 	jsonStr, err := c.Post(action, params)
-// 	var order OrderResponse
-// 	var taskStatus TaskStatus
-
-// 	if err != nil {
-// 		return order, taskStatus, fmt.Errorf("Error perform action %s: %s, params: %+v", action, err, params)
-// 	}
-
-// 	json.Unmarshal([]byte(jsonStr), &order)
-// 	if !order.Paid {
-// 		return order, taskStatus, fmt.Errorf("Error perform action %s cause order is not paid, input = %+v, response = %s", action, params, jsonStr)
-// 		//errors.New("Can not perform this action cause of payment failed, connect to CMC administrator for your advice")
-// 	}
-
-// 	taskStatus, err = c.waitForTaskFinished(order.TaskID, timeSettings)
-// 	if err != nil {
-// 		return order, taskStatus, fmt.Errorf("Error perform action %s with task id (%s): %s", action, order.TaskID, err)
-// 	}
-
-// 	return order, taskStatus, err
-// }
-
 // TimeSettings object
-type TimeSettings struct {
-	Delay    int
-	Interval int
-	Timeout  int
-}
+// type TimeSettings struct {
+// 	Delay    int
+// 	Interval int
+// 	Timeout  int
+// }
 
-// ShortTimeSettings predefined TimeSettings for short task
-var ShortTimeSettings = TimeSettings{Delay: 1, Interval: 1, Timeout: 60}
+// // ShortTimeSettings predefined TimeSettings for short task
+// var ShortTimeSettings = TimeSettings{Delay: 1, Interval: 1, Timeout: 60}
 
-// MediumTimeSettings predefined TimeSettings for medium task
-var MediumTimeSettings = TimeSettings{Delay: 3, Interval: 3, Timeout: 5 * 60}
+// // MediumTimeSettings predefined TimeSettings for medium task
+// var MediumTimeSettings = TimeSettings{Delay: 3, Interval: 3, Timeout: 5 * 60}
 
-// LongTimeSettings predefined TimeSettings for long task
-var LongTimeSettings = TimeSettings{Delay: 10, Interval: 20, Timeout: 20 * 60}
+// // LongTimeSettings predefined TimeSettings for long task
+// var LongTimeSettings = TimeSettings{Delay: 10, Interval: 20, Timeout: 20 * 60}
 
-// SuperLongTimeSettings predefined TimeSettings for long task
-var SuperLongTimeSettings = TimeSettings{Delay: 20, Interval: 20, Timeout: 5 * 60 * 60}
+// // SuperLongTimeSettings predefined TimeSettings for long task
+// var SuperLongTimeSettings = TimeSettings{Delay: 20, Interval: 20, Timeout: 5 * 60 * 60}
 
-// HalfDayTimeSettings for long task like take snapshot
-var HalfDayTimeSettings = TimeSettings{Delay: 60, Interval: 60, Timeout: 12 * 60 * 60}
+// // HalfDayTimeSettings for long task like take snapshot
+// var HalfDayTimeSettings = TimeSettings{Delay: 60, Interval: 60, Timeout: 12 * 60 * 60}
 
-// OneDayTimeSettings for long task like take snapshot
-var OneDayTimeSettings = TimeSettings{Delay: 60, Interval: 60, Timeout: 24 * 60 * 60}
+// // OneDayTimeSettings for long task like take snapshot
+// var OneDayTimeSettings = TimeSettings{Delay: 60, Interval: 60, Timeout: 24 * 60 * 60}
 
-func (c *Client) waitForTaskFinished(taskID string, timeSettings TimeSettings) (TaskStatus, error) {
-	log.Printf("[INFO] Waiting for server with task id (%s) to be created", taskID)
-	stateConf := &StateChangeConf{
-		Pending:    []string{"WAIT", "PROCESSING"},
-		Target:     []string{"DONE"},
-		Refresh:    c.taskStateRefreshfunc(taskID),
-		Timeout:    time.Duration(timeSettings.Timeout) * time.Second,
-		Delay:      time.Duration(timeSettings.Delay) * time.Second,
-		MinTimeout: time.Duration(timeSettings.Interval) * time.Second,
-	}
-	res, err := stateConf.WaitForState()
-	if err != nil {
-		return TaskStatus{}, err
-	}
-	return res.(TaskStatus), err
-}
+// func (c *Client) waitForTaskFinished(taskID string, timeSettings TimeSettings) (TaskStatus, error) {
+// 	log.Printf("[INFO] Waiting for server with task id (%s) to be created", taskID)
+// 	stateConf := &StateChangeConf{
+// 		Pending:    []string{"WAIT", "PROCESSING"},
+// 		Target:     []string{"DONE"},
+// 		Refresh:    c.taskStateRefreshfunc(taskID),
+// 		Timeout:    time.Duration(timeSettings.Timeout) * time.Second,
+// 		Delay:      time.Duration(timeSettings.Delay) * time.Second,
+// 		MinTimeout: time.Duration(timeSettings.Interval) * time.Second,
+// 	}
+// 	res, err := stateConf.WaitForState()
+// 	if err != nil {
+// 		return TaskStatus{}, err
+// 	}
+// 	return res.(TaskStatus), err
+// }
 
-func (c *Client) taskStateRefreshfunc(taskID string) StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		// Get task result from cloud server API
-		resp, err := c.Task.Get(taskID)
-		if err != nil {
-			return nil, "", err
-		}
-		// if the task is not ready, we need to wait for a moment
-		if resp.Status == "ERROR" {
-			log.Println("[DEBUG] Task is failed")
-			return nil, "", errors.New(fmt.Sprint(resp))
-		}
+// func (c *Client) taskStateRefreshfunc(taskID string) StateRefreshFunc {
+// 	return func() (interface{}, string, error) {
+// 		// Get task result from cloud server API
+// 		resp, err := c.Task.Get(taskID)
+// 		if err != nil {
+// 			return nil, "", err
+// 		}
+// 		// if the task is not ready, we need to wait for a moment
+// 		if resp.Status == "ERROR" {
+// 			log.Println("[DEBUG] Task is failed")
+// 			return nil, "", errors.New(fmt.Sprint(resp))
+// 		}
 
-		if resp.Status == "DONE" {
-			return resp, "DONE", nil
-		}
+// 		if resp.Status == "DONE" {
+// 			return resp, "DONE", nil
+// 		}
 
-		log.Println("[DEBUG] Task is not done")
-		return nil, "", nil
-	}
-}
+// 		log.Println("[DEBUG] Task is not done")
+// 		return nil, "", nil
+// 	}
+// }
