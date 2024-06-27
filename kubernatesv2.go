@@ -87,7 +87,6 @@ func (b *AutoScalev2ConfigFromString) UnmarshalJSON(data []byte) error {
 	input := string(data)
 	input = strings.Trim(input, `"`)
 	input = strings.ReplaceAll(input, `\`, ``)
-	// Logs("AutoScalev2Config @" + input + "@")
 	if err := json.Unmarshal([]byte(input), &val); err != nil {
 		Logo("AutoScalev2Config Unmarshal err =", err)
 		return err
@@ -101,7 +100,6 @@ func (b *AutoScalev2MetadataFromString) UnmarshalJSON(data []byte) error {
 	input := string(data)
 	input = strings.Trim(input, `"`)
 	input = strings.ReplaceAll(input, `\`, ``)
-	// Logs("AutoScalev2MetadataFromString @" + input + "@")
 	if err := json.Unmarshal([]byte(input), &val); err != nil {
 		Logo("AutoScalev2Metadata Unmarshal err =", err)
 		return err

@@ -70,6 +70,8 @@ type Client struct {
 	Dns                      DnsZoneService
 	DnsRecord                DnsRecordService
 	DnsAcl                   DnsAclService
+	CDN                      CDNService
+	CDNCert                  CDNCertService
 	WafWhitelist             WafWhitelistService
 	Certificate              CertificateService
 	DatabaseInstance         DatabaseInstanceService
@@ -145,6 +147,8 @@ func NewClient(configs ClientConfigs) (*Client, error) {
 	c.Dns = &dns{client: c}
 	c.DnsRecord = &dnsrecord{client: c}
 	c.DnsAcl = &dnsacl{client: c}
+	c.CDN = &cdn{client: c}
+	c.CDNCert = &cdncert{client: c}
 	c.WafWhitelist = &wafwhitelist{client: c}
 	c.Certificate = &certificate{client: c}
 	c.Kubernetes = &kubernetes{client: c}
@@ -184,7 +188,6 @@ func (c *Client) createRequest(params map[string]string, ctx context.Context) *r
 		SetHeader("Accept", "application/json").
 		SetHeader("Project-Id", c.Configs.ProjectId).
 		SetHeader("Region-Id", c.Configs.RegionId).
-		// SetAuthToken(c.Configs.apiKey).
 		SetError(&APIError{}).
 		SetQueryParams(params)
 
@@ -271,6 +274,13 @@ func (c *Client) Post(path string, params map[string]interface{}) (string, error
 	c._logRequest2(path, params, "POST", resp)
 	return c.parseResponse(resp, err)
 }
+func (c *Client) PostWithHeaders(path string, params map[string]interface{}, headers map[string]string) (string, error) {
+	request := c.createRequest(nil, context.Background())
+	request.SetHeaders(headers)
+	resp, err := request.SetBody(params).Post(c.Configs.APIEndpoint + "/" + path)
+	c._logRequest2(path, params, "POST", resp)
+	return c.parseResponse(resp, err)
+}
 
 func (c *Client) Put(path string, params map[string]interface{}) (string, error) {
 	resp, err := c.createRequest(nil, context.Background()).SetBody(params).Put(c.Configs.APIEndpoint + "/" + path)
@@ -353,67 +363,3 @@ func (c *Client) PerformPatch(path string, params map[string]interface{}) (Actio
 func (c *Client) SimplePost(path string) (string, error) {
 	return c.Post(path, map[string]interface{}{})
 }
-
-// TimeSettings object
-// type TimeSettings struct {
-// 	Delay    int
-// 	Interval int
-// 	Timeout  int
-// }
-
-// // ShortTimeSettings predefined TimeSettings for short task
-// var ShortTimeSettings = TimeSettings{Delay: 1, Interval: 1, Timeout: 60}
-
-// // MediumTimeSettings predefined TimeSettings for medium task
-// var MediumTimeSettings = TimeSettings{Delay: 3, Interval: 3, Timeout: 5 * 60}
-
-// // LongTimeSettings predefined TimeSettings for long task
-// var LongTimeSettings = TimeSettings{Delay: 10, Interval: 20, Timeout: 20 * 60}
-
-// // SuperLongTimeSettings predefined TimeSettings for long task
-// var SuperLongTimeSettings = TimeSettings{Delay: 20, Interval: 20, Timeout: 5 * 60 * 60}
-
-// // HalfDayTimeSettings for long task like take snapshot
-// var HalfDayTimeSettings = TimeSettings{Delay: 60, Interval: 60, Timeout: 12 * 60 * 60}
-
-// // OneDayTimeSettings for long task like take snapshot
-// var OneDayTimeSettings = TimeSettings{Delay: 60, Interval: 60, Timeout: 24 * 60 * 60}
-
-// func (c *Client) waitForTaskFinished(taskID string, timeSettings TimeSettings) (TaskStatus, error) {
-// 	log.Printf("[INFO] Waiting for server with task id (%s) to be created", taskID)
-// 	stateConf := &StateChangeConf{
-// 		Pending:    []string{"WAIT", "PROCESSING"},
-// 		Target:     []string{"DONE"},
-// 		Refresh:    c.taskStateRefreshfunc(taskID),
-// 		Timeout:    time.Duration(timeSettings.Timeout) * time.Second,
-// 		Delay:      time.Duration(timeSettings.Delay) * time.Second,
-// 		MinTimeout: time.Duration(timeSettings.Interval) * time.Second,
-// 	}
-// 	res, err := stateConf.WaitForState()
-// 	if err != nil {
-// 		return TaskStatus{}, err
-// 	}
-// 	return res.(TaskStatus), err
-// }
-
-// func (c *Client) taskStateRefreshfunc(taskID string) StateRefreshFunc {
-// 	return func() (interface{}, string, error) {
-// 		// Get task result from cloud server API
-// 		resp, err := c.Task.Get(taskID)
-// 		if err != nil {
-// 			return nil, "", err
-// 		}
-// 		// if the task is not ready, we need to wait for a moment
-// 		if resp.Status == "ERROR" {
-// 			log.Println("[DEBUG] Task is failed")
-// 			return nil, "", errors.New(fmt.Sprint(resp))
-// 		}
-
-// 		if resp.Status == "DONE" {
-// 			return resp, "DONE", nil
-// 		}
-
-// 		log.Println("[DEBUG] Task is not done")
-// 		return nil, "", nil
-// 	}
-// }

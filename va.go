@@ -43,7 +43,7 @@ type va struct {
 
 // Get VA detail
 func (v *va) Get(id string) (VA, error) {
-	jsonStr, err := v.client.Get("va/"+id, map[string]string{})
+	jsonStr, err := v.client.Get("vulner/"+id, map[string]string{})
 	var va VA
 	if err == nil {
 		err = json.Unmarshal([]byte(jsonStr), &va)
@@ -51,7 +51,7 @@ func (v *va) Get(id string) (VA, error) {
 	return va, err
 }
 func (v *va) List(params map[string]string) ([]VA, error) {
-	jsonStr, err := v.client.Get("va", map[string]string{})
+	jsonStr, err := v.client.Get("vulner", map[string]string{})
 	var va VAListWrapper
 	if err == nil {
 		err = json.Unmarshal([]byte(jsonStr), &va)
@@ -59,10 +59,10 @@ func (v *va) List(params map[string]string) ([]VA, error) {
 	return va.Items, err
 }
 func (v *va) Delete(id string) (ActionResponse, error) {
-	return v.client.PerformDelete("va/" + id)
+	return v.client.PerformDelete("vulner/" + id)
 }
 func (v *va) Create(params map[string]interface{}) (VA, error) {
-	jsonStr, err := v.client.Post("va/scan", params)
+	jsonStr, err := v.client.Post("vulner/scan", params)
 	var response VA
 	if err != nil {
 		return response, err

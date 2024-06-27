@@ -60,7 +60,6 @@ func (b *RedisDataDetailFromString) UnmarshalJSON(data []byte) error {
 	input := string(data)
 	input = strings.Trim(input, `"`)
 	input = strings.ReplaceAll(input, `\`, ``)
-	// Logs("AutoScalev2Config @" + input + "@")
 	if err := json.Unmarshal([]byte(input), &val); err != nil {
 		Logo("RedisDataDetailFromString Unmarshal err =", err)
 		return err

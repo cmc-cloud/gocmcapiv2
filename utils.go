@@ -44,7 +44,6 @@ func Logo(pre string, object interface{}) {
 	}
 }
 
-// Logs log string
 func Logs(message string) {
 	str, ok := os.LookupEnv("DEBUG_CMCCLOUD_TERRAFORM")
 	logfile, okLogFile := os.LookupEnv("DEBUG_CMCCLOUD_LOGFILE")
@@ -66,7 +65,6 @@ func Logs(message string) {
 	}
 }
 
-// Logs log string
 func Logall(message string) {
 	logfile := "log.txt"
 	f, err := os.OpenFile(logfile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
