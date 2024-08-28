@@ -112,6 +112,10 @@ type SecurityAPIError struct {
 type DnsAPIError struct {
 	ErrorText string `json:"error"`
 }
+type CDNAPIError struct {
+	ErrorCode int    `json:"status_code"`
+	ErrorText string `json:"message"`
+}
 
 // Timeout is timeout info for a long task
 // type Timeout struct {
@@ -257,6 +261,19 @@ func (c *Client) parseResponse(response *resty.Response, err error) (string, err
 		var apiError DnsAPIError
 		err := json.Unmarshal([]byte(restext), &apiError)
 		if err == nil {
+			return restext, fmt.Errorf("Erro: %s", apiError.ErrorText)
+		}
+	}
+
+	// cdn api
+	// {"message":"ssl already exists","data":"","status_code":400}
+	if strings.Contains(restext, "status_code") {
+		var apiError CDNAPIError
+		err := json.Unmarshal([]byte(restext), &apiError)
+		if err == nil {
+			return restext, fmt.Errorf("Erro: %s", err)
+		}
+		if apiError.ErrorCode >= 300 {
 			return restext, fmt.Errorf("Erro: %s", apiError.ErrorText)
 		}
 	}

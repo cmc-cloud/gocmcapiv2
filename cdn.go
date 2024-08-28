@@ -8,7 +8,7 @@ import (
 type CDNService interface {
 	Get(id string) (CDN, error)
 	List(cdn_id string, params map[string]string) ([]CDN, error)
-	Create(params map[string]interface{}) (CDN, error)
+	Create(params map[string]interface{}) (string, error)
 	Update(id string, params map[string]interface{}) (ActionResponse, error)
 	Delete(id string) (ActionResponse, error)
 }
@@ -67,6 +67,13 @@ type CDN struct {
 
 	ErrorMessage string `json:"message"`
 }
+type CDNCreateResponse struct {
+	Message string `json:"message"`
+	Data    struct {
+		ID string `json:"id"`
+	} `json:"data"`
+	StatusCode int `json:"status_code"`
+}
 type CDNWrapper struct {
 	Data CDN `json:"data"`
 }
@@ -114,14 +121,14 @@ func (v *cdn) List(cdn_id string, params map[string]string) ([]CDN, error) {
 func (v *cdn) Delete(id string) (ActionResponse, error) {
 	return v.client.PerformDelete("cdn/cdn/sites/" + id)
 }
-func (v *cdn) Create(params map[string]interface{}) (CDN, error) {
+func (v *cdn) Create(params map[string]interface{}) (string, error) {
 	jsonStr, err := v.client.Post("cdn/cdn/sites", params)
-	var response CDN
+	var response CDNCreateResponse
 	if err != nil {
-		return response, err
+		return "", err
 	}
 	json.Unmarshal([]byte(jsonStr), &response)
-	return response, nil
+	return response.Data.ID, nil
 }
 
 func (s *cdn) Update(id string, params map[string]interface{}) (ActionResponse, error) {

@@ -8,11 +8,17 @@ import (
 type CDNCertService interface {
 	Get(id string) (CDNCert, error)
 	List(params map[string]string) ([]CDNCert, error)
-	Create(params map[string]interface{}) (CDNCert, error)
+	Create(params map[string]interface{}) (string, error)
 	Update(id string, params map[string]interface{}) (ActionResponse, error)
 	Delete(id string) (ActionResponse, error)
 }
-
+type CDNCertCreateResponse struct {
+	Message string `json:"message"`
+	Data    struct {
+		ID string `json:"id"`
+	} `json:"data"`
+	StatusCode int `json:"status_code"`
+}
 type CDNCert struct {
 	ID              string `json:"id"`
 	CertificateType string `json:"certificate_type"`
@@ -54,14 +60,14 @@ func (v *cdncert) List(params map[string]string) ([]CDNCert, error) {
 func (v *cdncert) Delete(id string) (ActionResponse, error) {
 	return v.client.PerformDelete("cdn/ssl/" + id)
 }
-func (v *cdncert) Create(params map[string]interface{}) (CDNCert, error) {
+func (v *cdncert) Create(params map[string]interface{}) (string, error) {
 	jsonStr, err := v.client.Post("cdn/ssl/customssl", params)
-	var response CDNCert
+	var response CDNCertCreateResponse
 	if err != nil {
-		return response, err
+		return "", err
 	}
 	json.Unmarshal([]byte(jsonStr), &response)
-	return response, nil
+	return response.Data.ID, nil
 }
 func (s *cdncert) Update(id string, params map[string]interface{}) (ActionResponse, error) {
 	return s.client.PerformUpdate("cdn/ssl/"+id, params)
