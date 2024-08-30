@@ -68,6 +68,9 @@ func (v *waf) List(params map[string]string) ([]Waf, error) {
 	if err == nil {
 		err = json.Unmarshal([]byte(jsonStr), &waf)
 	}
+	if err != nil {
+		return []Waf{}, err
+	}
 	return waf.Items, err
 }
 func (v *waf) Delete(id string) (ActionResponse, error) {
@@ -79,8 +82,8 @@ func (v *waf) Create(params map[string]interface{}) (Waf, error) {
 	if err != nil {
 		return response, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	return response, err
 }
 
 func (v *waf) Update(id string, params map[string]interface{}) (ActionResponse, error) {

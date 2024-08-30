@@ -11,10 +11,6 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
-// const (
-// 	defaultAPIURL = "https://apiv2.cloud.cmctelecom.vn"
-// )
-
 var (
 	// ErrNotFound for resource not found status
 	ErrNotFound = errors.New("Resource not found")
@@ -24,24 +20,11 @@ var (
 	ErrCommon = errors.New("Error")
 )
 
-// OrderResponse response when create a Server
-type OrderResponse struct {
-	//Success    bool   `json:"success"`
-	// ID     string `json:"id"`
-	TaskID string `json:"jobid"`
-	Price  int    `json:"price"`
-	Paid   bool   `json:"paid"`
-}
-
 type ClientConfigs struct {
 	APIKey      string
 	APIEndpoint string
 	ProjectId   string
 	RegionId    string
-	// apiURL    string
-	// apiKey    string
-	// projectId string
-	// regionId  string
 }
 
 // Client represents CMC Cloud API client.
@@ -52,7 +35,6 @@ type Client struct {
 	Flavor                   FlavorService
 	Server                   ServerService
 	EcsGroup                 EcsGroupService
-	Task                     TaskService
 	Volume                   VolumeService
 	VolumeType               VolumeTypeService
 	NetworkInterface         NetworkInterfaceService
@@ -102,8 +84,6 @@ type APIError struct {
 		ErrorCode int    `json:"code"`
 		ErrorText string `json:"message"`
 	} `json:"error"`
-	// ErrorCode int    `json:"error_code"`
-	// ErrorText string `json:"error_text"`
 }
 type SecurityAPIError struct {
 	ErrorCode int    `json:"code"`
@@ -117,13 +97,6 @@ type CDNAPIError struct {
 	ErrorText string `json:"message"`
 }
 
-// Timeout is timeout info for a long task
-// type Timeout struct {
-// 	Delay      time.Duration `default:"geek"` // Wait this time before starting checks
-// 	Timeout    time.Duration // The amount of time to wait before timeout
-// 	MinTimeout time.Duration // Smallest time to wait before refreshes
-// }
-
 // NewClient creates new CMC Cloud Api client.
 func NewClient(configs ClientConfigs) (*Client, error) {
 	c := &Client{}
@@ -133,7 +106,7 @@ func NewClient(configs ClientConfigs) (*Client, error) {
 	c.Flavor = &flavor{client: c}
 	c.Server = &server{client: c}
 	c.EcsGroup = &ecsgroup{client: c}
-	c.Task = &task{client: c}
+	// c.Task = &task{client: c}
 	c.Volume = &volume{client: c}
 	c.VolumeType = &volumetype{client: c}
 	c.VolumeAutoBackup = &volumeautobackup{client: c}
@@ -202,6 +175,7 @@ func (c *Client) parseResponse(response *resty.Response, err error) (string, err
 	if err != nil {
 		return restext, err
 	}
+	requestURL := response.Request.URL
 	if response.Error() != nil {
 		apiError := response.Error().(*APIError)
 		if apiError != nil {
@@ -215,7 +189,6 @@ func (c *Client) parseResponse(response *resty.Response, err error) (string, err
 			}
 
 			// sua lai ma loi voi api cloudops-core
-			requestURL := response.Request.URL
 			if strings.Contains(requestURL, "cloudops-core") && apiError.Error.ErrorCode == 500 && strings.Contains(apiError.Error.ErrorText, "not found") {
 				return restext, fmt.Errorf("%s: %w", apiError.Error.ErrorText, ErrNotFound)
 			}
@@ -239,19 +212,21 @@ func (c *Client) parseResponse(response *resty.Response, err error) (string, err
 	}
 
 	// security api
-	if strings.Contains(restext, "code") && strings.Contains(restext, "error") {
-		var apiError SecurityAPIError
-		err := json.Unmarshal([]byte(restext), &apiError)
-		if err == nil {
-			if apiError.ErrorCode == 0 {
-				apiError.ErrorCode = response.StatusCode()
-			}
+	if strings.Contains(requestURL, "security") {
+		if strings.Contains(restext, "code") && strings.Contains(restext, "error") {
+			var apiError SecurityAPIError
+			err := json.Unmarshal([]byte(restext), &apiError)
+			if err == nil {
+				if apiError.ErrorCode == 0 {
+					apiError.ErrorCode = response.StatusCode()
+				}
 
-			code := apiError.ErrorCode
-			if code == http.StatusNotFound {
-				return restext, fmt.Errorf("%s: %w", apiError.ErrorText, ErrNotFound)
+				code := apiError.ErrorCode
+				if code == http.StatusNotFound {
+					return restext, fmt.Errorf("%s: %w", apiError.ErrorText, ErrNotFound)
+				}
+				return restext, fmt.Errorf("Error %d: %s", apiError.ErrorCode, apiError.ErrorText)
 			}
-			return restext, fmt.Errorf("Error %d: %s", apiError.ErrorCode, apiError.ErrorText)
 		}
 	}
 

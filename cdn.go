@@ -127,7 +127,10 @@ func (v *cdn) Create(params map[string]interface{}) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	if err != nil {
+		return "", err
+	}
 	return response.Data.ID, nil
 }
 

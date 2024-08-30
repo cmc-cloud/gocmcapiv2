@@ -31,6 +31,7 @@ type RedisConfigurationListWrapper struct {
 type RedisDatastore struct {
 	ID           string `json:"id"`
 	Name         string `json:"name"`
+	Code         string `json:"code"`
 	VersionInfos []struct {
 		ID          string `json:"id"`
 		VersionName string `json:"versionName"`
@@ -40,7 +41,6 @@ type RedisDatastore struct {
 			Code string `json:"code"`
 		} `json:"modeInfo"`
 	} `json:"versionInfos"`
-	Code string `json:"code"`
 }
 type RedisConfigurationParameter struct {
 	Name  string `json:"paramName"`
@@ -128,6 +128,6 @@ func (s *redisconfiguration) Create(params map[string]interface{}) (RedisConfigu
 	if err != nil {
 		return response, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	return response, err
 }

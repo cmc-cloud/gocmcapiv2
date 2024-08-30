@@ -45,7 +45,7 @@ func (s *containerregistry) Get(devops_project_id string, id string) (ContainerR
 	if err != nil {
 		return nilres, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
+	err = json.Unmarshal([]byte(jsonStr), &response)
 	if err != nil {
 		return nilres, err
 	}
@@ -59,7 +59,7 @@ func (s *containerregistry) List(devops_project_id string, params map[string]str
 	if err != nil {
 		return nilres, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
+	err = json.Unmarshal([]byte(jsonStr), &response)
 	if err != nil {
 		return nilres, err
 	}
@@ -84,7 +84,7 @@ func (s *containerregistry) Create(devops_project_id string, params map[string]i
 	if err != nil {
 		return nilres, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
+	err = json.Unmarshal([]byte(jsonStr), &response)
 	if err != nil {
 		return nilres, err
 	}

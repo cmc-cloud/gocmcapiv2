@@ -85,8 +85,8 @@ func (s *volume) CreateSnapshot(id string, params map[string]interface{}) (Snaps
 	if err != nil {
 		return response, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	return response, err
 }
 func (s *volume) CreateBackup(id string, params map[string]interface{}) (Backup, error) {
 	jsonStr, err := s.client.Post("volume/"+id+"/backup", params)
@@ -94,8 +94,8 @@ func (s *volume) CreateBackup(id string, params map[string]interface{}) (Backup,
 	if err != nil {
 		return response, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	return response, err
 }
 func (s *volume) Create(params map[string]interface{}) (Volume, error) {
 	jsonStr, err := s.client.Post("volume", params)
@@ -103,6 +103,6 @@ func (s *volume) Create(params map[string]interface{}) (Volume, error) {
 	if err != nil {
 		return response, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	return response, err
 }

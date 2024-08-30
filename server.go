@@ -22,17 +22,6 @@ type ServerService interface {
 	Start(id string) (ActionResponse, error)
 	RemoveSecurityGroup(id string, security_group_name string) (ActionResponse, error)
 	AddSecurityGroup(id string, security_group_name string) (ActionResponse, error)
-	// RemoveSecondaryIP(id, ip4Address string) (TaskStatus, error)
-	// AddNic(id, networkID string) (TaskStatus, error)
-	// RemoveNic(id, nicID string) (TaskStatus, error)
-	// DisableBackup(id string) (TaskStatus, error)
-	// EnableBackup(id, intervalType, scheduleTime string) (OrderResponse, TaskStatus, error)
-	// DisablePrivateNetwork(id string) (TaskStatus, error)
-	// EnablePrivateNetwork(id string) (TaskStatus, error)
-	// RestoreSnapshot(id string, snapshotID string) (TaskStatus, error)
-	// TakeSnapshot(id string, name string) (OrderResponse, TaskStatus, error)
-	// GetConsoleURL(id string) (string, error)
-	// UpdateScheduleTime(id, intervalType, scheduleTime string) (string, error)
 }
 
 type IpAddress struct {
@@ -180,10 +169,10 @@ func (s *server) AddSecurityGroup(id string, security_group_name string) (Action
 func (s *server) ChangePassword(id string, password string) (ActionResponse, error) {
 	jsonStr, err := s.client.Post("server/"+id+"/change_pass", map[string]interface{}{"password": password})
 	var res ActionResponse
-	json.Unmarshal([]byte(jsonStr), &res)
 	if err != nil {
 		return res, err
 	}
+	err = json.Unmarshal([]byte(jsonStr), &res)
 	return res, err
 }
 
@@ -194,6 +183,6 @@ func (s *server) Create(params map[string]interface{}) (ServerCreatedResponse, e
 	if err != nil {
 		return response, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	return response, err
 }

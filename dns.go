@@ -63,6 +63,9 @@ func (v *dns) List(params map[string]string) ([]DnsZone, error) {
 	if err == nil {
 		err = json.Unmarshal([]byte(jsonStr), &dns)
 	}
+	if err != nil {
+		return []DnsZone{}, err
+	}
 	return dns.Result, err
 }
 func (v *dns) Delete(id string) (ActionResponse, error) {
@@ -75,8 +78,8 @@ func (v *dns) Create(params map[string]interface{}) (DnsZone, error) {
 		var resnil DnsZone
 		return resnil, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response.Zone, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	return response.Zone, err
 }
 
 func (v *dns) Update(id string, params map[string]interface{}) (ActionResponse, error) {

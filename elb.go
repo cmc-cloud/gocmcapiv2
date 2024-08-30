@@ -285,8 +285,8 @@ func (v *elb) Create(params map[string]interface{}) (ELB, error) {
 	if err != nil {
 		return response, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	return response, err
 }
 
 func (v *elb) CreateListener(id string, params map[string]interface{}) (ELBListener, error) {
@@ -295,8 +295,8 @@ func (v *elb) CreateListener(id string, params map[string]interface{}) (ELBListe
 	if err != nil {
 		return response, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	return response, err
 }
 
 func (v *elb) CreatePool(id string, params map[string]interface{}) (ELBPool, error) {
@@ -305,8 +305,8 @@ func (v *elb) CreatePool(id string, params map[string]interface{}) (ELBPool, err
 	if err != nil {
 		return response, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	return response, err
 }
 
 func (v *elb) CreateHealthMonitor(params map[string]interface{}) (ELBHealthMonitor, error) {
@@ -315,8 +315,8 @@ func (v *elb) CreateHealthMonitor(params map[string]interface{}) (ELBHealthMonit
 	if err != nil {
 		return response, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	return response, err
 }
 func (v *elb) CreatePoolMember(id string, params map[string]interface{}) (ELBPoolMember, error) {
 	jsonStr, err := v.client.Post("lbaas/pool/"+id+"/member", params)
@@ -324,8 +324,8 @@ func (v *elb) CreatePoolMember(id string, params map[string]interface{}) (ELBPoo
 	if err != nil {
 		return response, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	return response, err
 }
 
 func (v *elb) UpdateListener(id string, params map[string]interface{}) (ActionResponse, error) {

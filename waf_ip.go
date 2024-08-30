@@ -49,6 +49,9 @@ func (v *wafip) List(waf_id string, params map[string]string) ([]WafIP, error) {
 	if err == nil {
 		err = json.Unmarshal([]byte(jsonStr), &wafip)
 	}
+	if err != nil {
+		return []WafIP{}, err
+	}
 	return wafip.Items, err
 }
 func (v *wafip) Update(id string, params map[string]interface{}) (ActionResponse, error) {
@@ -63,6 +66,6 @@ func (v *wafip) Create(params map[string]interface{}) (WafIP, error) {
 	if err != nil {
 		return response, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	return response, err
 }

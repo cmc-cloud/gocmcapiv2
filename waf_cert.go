@@ -60,6 +60,6 @@ func (v *wafcert) Create(params map[string]interface{}) (WafCert, error) {
 	if err != nil {
 		return response, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	return response, err
 }

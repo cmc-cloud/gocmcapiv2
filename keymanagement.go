@@ -116,6 +116,9 @@ func (v *keymanagement) Get(id string) (KeyManagementContainer, error) {
 	if err == nil {
 		err = json.Unmarshal([]byte(jsonStr), &obj)
 	}
+	if err != nil {
+		return KeyManagementContainer{}, err
+	}
 	return obj.Data, err
 }
 
@@ -126,6 +129,9 @@ func (v *keymanagement) GetToken(id string) (KeyManagementToken, error) {
 	if err == nil {
 		err = json.Unmarshal([]byte(jsonStr), &obj)
 	}
+	if err != nil {
+		return KeyManagementToken{}, err
+	}
 	return obj.Data, err
 }
 
@@ -134,6 +140,9 @@ func (s *keymanagement) List(params map[string]string) ([]KeyManagementContainer
 	var obj KeyManagementContainerListWrapper
 	if err == nil {
 		err = json.Unmarshal([]byte(jsonStr), &obj)
+	}
+	if err != nil {
+		return []KeyManagementContainer{}, err
 	}
 	return obj.Data.Docs, err
 }
@@ -145,6 +154,9 @@ func (s *keymanagement) GetSecrets(id string) ([]KeyManagementSecret, error) {
 		return nilres, err
 	}
 	err = json.Unmarshal([]byte(jsonStr), &obj)
+	if err != nil {
+		return []KeyManagementSecret{}, err
+	}
 	return obj.Data.Docs, err
 }
 func (v *keymanagement) GetSecret(secret_id string) (KeyManagementSecret, error) {
@@ -154,8 +166,10 @@ func (v *keymanagement) GetSecret(secret_id string) (KeyManagementSecret, error)
 		var nilres KeyManagementSecret
 		return nilres, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	// Logo("get nodegroup ", response)
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	if err != nil {
+		return KeyManagementSecret{}, err
+	}
 	return response.Data, nil
 }
 
@@ -172,7 +186,10 @@ func (s *keymanagement) Create(params map[string]interface{}) (KeyManagementCont
 	if err != nil {
 		return response, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	if err != nil {
+		return KeyManagementContainerCreateResponse{}, err
+	}
 	return response, nil
 }
 
@@ -182,8 +199,8 @@ func (s *keymanagement) CreateSecret(params map[string]interface{}) (KeyManageme
 	if err != nil {
 		return response, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	return response, err
 }
 
 func (s *keymanagement) CreateToken(params map[string]interface{}) (KeyManagementTokenCreateResponse, error) {
@@ -192,8 +209,8 @@ func (s *keymanagement) CreateToken(params map[string]interface{}) (KeyManagemen
 	if err != nil {
 		return response, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	return response, err
 }
 
 func (v *keymanagement) DeleteToken(id string) (ActionResponse, error) {

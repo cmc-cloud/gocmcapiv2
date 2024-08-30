@@ -52,6 +52,9 @@ func (v *wafwhitelist) List(waf_id string, params map[string]string) ([]WafWhite
 	if err == nil {
 		err = json.Unmarshal([]byte(jsonStr), &wafwhitelist)
 	}
+	if err != nil {
+		return []WafWhitelist{}, err
+	}
 	return wafwhitelist.Items, err
 }
 func (v *wafwhitelist) Update(id string, params map[string]interface{}) (ActionResponse, error) {
@@ -66,6 +69,6 @@ func (v *wafwhitelist) Create(params map[string]interface{}) (WafWhitelist, erro
 	if err != nil {
 		return response, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	return response, err
 }

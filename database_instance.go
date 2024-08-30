@@ -93,8 +93,8 @@ func (s *databaseinstance) Create(params map[string]interface{}) (DatabaseInstan
 	if err != nil {
 		return response, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	return response, err
 }
 
 func (s *databaseinstance) CreateBackup(id string, params map[string]interface{}) (DatabaseBackup, error) {
@@ -103,8 +103,8 @@ func (s *databaseinstance) CreateBackup(id string, params map[string]interface{}
 	if err != nil {
 		return response, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	return response, err
 }
 func (s *databaseinstance) CreateSnapshot(id string, params map[string]interface{}) (DatabaseSnapshot, error) {
 	jsonStr, err := s.client.Post("dbaas/instance/"+id+"/snapshot", params)
@@ -112,6 +112,6 @@ func (s *databaseinstance) CreateSnapshot(id string, params map[string]interface
 	if err != nil {
 		return response, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	return response, err
 }

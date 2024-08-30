@@ -60,8 +60,8 @@ func (s *vpc) Create(params map[string]interface{}) (VPC, error) {
 	if err != nil {
 		return response, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	return response, err
 }
 
 func (s *vpc) CreateSubnet(id string, params map[string]interface{}) (Subnet, error) {
@@ -70,6 +70,6 @@ func (s *vpc) CreateSubnet(id string, params map[string]interface{}) (Subnet, er
 	if err != nil {
 		return response, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	return response, err
 }

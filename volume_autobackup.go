@@ -56,6 +56,6 @@ func (s *volumeautobackup) Create(params map[string]interface{}) (VolumeAutoBack
 	if err != nil {
 		return response, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	return response, err
 }

@@ -56,6 +56,9 @@ func (v *va) List(params map[string]string) ([]VA, error) {
 	if err == nil {
 		err = json.Unmarshal([]byte(jsonStr), &va)
 	}
+	if err != nil {
+		return []VA{}, err
+	}
 	return va.Items, err
 }
 func (v *va) Delete(id string) (ActionResponse, error) {
@@ -67,6 +70,6 @@ func (v *va) Create(params map[string]interface{}) (VA, error) {
 	if err != nil {
 		return response, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	return response, err
 }

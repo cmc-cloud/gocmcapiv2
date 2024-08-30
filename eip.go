@@ -93,8 +93,8 @@ func (v *eip) Create(params map[string]interface{}) (EIP, error) {
 	if err != nil {
 		return response, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	return response, err
 }
 
 func (v *eip) GetPortForwardingRule(id string, rule_id string) (PortForwardingRule, error) {
@@ -112,8 +112,8 @@ func (v *eip) CreatePortForwardingRule(id string, params map[string]interface{})
 	if err != nil {
 		return response, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	return response, err
 }
 func (v *eip) UpdatePortForwardingRule(id string, rule_id string, params map[string]interface{}) (ActionResponse, error) {
 	return v.client.PerformUpdate("network/eip/"+id+"/port-forwarding-rule/"+rule_id, params)

@@ -55,6 +55,9 @@ func (v *wafrule) List(waf_id string, params map[string]string) ([]WafRule, erro
 	if err == nil {
 		err = json.Unmarshal([]byte(jsonStr), &wafrule)
 	}
+	if err != nil {
+		return []WafRule{}, err
+	}
 	return wafrule.Items, err
 }
 func (v *wafrule) Update(id string, params map[string]interface{}) (ActionResponse, error) {

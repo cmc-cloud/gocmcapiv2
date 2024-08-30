@@ -139,8 +139,8 @@ func (s *kubernetes) Create(params map[string]interface{}) (KubernetesCreatedRes
 	if err != nil {
 		return response, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	return response, err
 }
 
 func (s *kubernetes) CreateNodeGroup(id string, params map[string]interface{}) (KubernetesNodeGroup, error) {
@@ -149,8 +149,8 @@ func (s *kubernetes) CreateNodeGroup(id string, params map[string]interface{}) (
 	if err != nil {
 		return response, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	return response, err
 }
 
 func (s *kubernetes) ResizeNodeGroup(id string, params map[string]interface{}) (ActionResponse, error) {

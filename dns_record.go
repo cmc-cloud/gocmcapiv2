@@ -62,6 +62,10 @@ func (v *dnsrecord) Get(zone_id string, id string) (DnsRecord, error) {
 	if err == nil {
 		err = json.Unmarshal([]byte(jsonStr), &dnsrecord)
 	}
+
+	if err != nil {
+		return DnsRecord{}, err
+	}
 	return dnsrecord.Record, err
 }
 func (v *dnsrecord) List(zone_id string, params map[string]string) ([]DnsRecord, error) {
@@ -69,6 +73,9 @@ func (v *dnsrecord) List(zone_id string, params map[string]string) ([]DnsRecord,
 	var dnsrecord DnsRecordListWrapper
 	if err == nil {
 		err = json.Unmarshal([]byte(jsonStr), &dnsrecord)
+	}
+	if err != nil {
+		return []DnsRecord{}, err
 	}
 	return dnsrecord.Result, err
 }
@@ -82,8 +89,11 @@ func (v *dnsrecord) Create(zone_id string, params map[string]interface{}) (DnsRe
 		var nilres DnsRecord
 		return nilres, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response.Record, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	if err != nil {
+		return DnsRecord{}, err
+	}
+	return response.Record, err
 }
 
 func (v *dnsrecord) Update(zone_id string, id string, params map[string]interface{}) (ActionResponse, error) {

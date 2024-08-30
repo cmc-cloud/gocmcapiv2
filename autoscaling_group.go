@@ -15,82 +15,6 @@ type AutoScalingGroupService interface {
 	Delete(id string) (ActionResponse, error)
 }
 
-/*
-	{
-	    "created_at": "2022-09-18T16:19:27.000000",
-	    "data": [],
-	    "domain": null,
-	    "id": "ddeb634e-42ec-4936-b3b3-87255209eaa2",
-	    "name": "delete-policy-as-group-ggd8",
-	    "project": "b613e96b87ce425f8cba5a0b549439ee",
-	    "spec": {
-	        "description": "41f88a92-4fe4-46a3-a724-b7fb51e8cf25",
-	        "properties": {
-	            "criteria": "OLDEST_FIRST",
-	            "destroy_after_deletion": true,
-	            "grace_period": 60,
-	            "hooks": {
-	                "params": {
-	                    "url": "https://test.com"
-	                },
-	                "timeout": "3600",
-	                "type": "webhook"
-	            },
-	            "reduce_desired_capacity": false,
-	            "zones": [
-	                {
-	                    "name": "AZ1",
-	                    "weight": 100
-	                }
-	            ],
-	            "adjustment": {
-	                "best_effort": true,
-	                "cooldown": 300,
-	                "min_step": 1,
-	                "number": 1,
-	                "type": "CHANGE_IN_CAPACITY"
-	            },
-	            "event": "CLUSTER_SCALE_IN",
-	            "detection": {
-	                "detection_modes": [
-	                    {
-	                        "type": "NODE_STATUS_POLLING"
-	                    }
-	                ],
-	                "interval": 300,
-	                "node_update_timeout": 60
-	            },
-	            "recovery": {
-	                "actions": [
-	                    {
-	                        "name": "RECREATE"
-	                    }
-	                ],
-	                "node_delete_timeout": 600,
-	                "node_force_recreate": true
-	            },
-	            "health_monitor": {
-	                "id": "66cca881-3b45-490f-93bf-f05e9f2938c1"
-	            },
-	            "lb_status_timeout": 300,
-	            "loadbalancer": "9a38cdd9-bc27-42fe-aa02-19e31e427554",
-	            "pool": {
-	                "id": "bbc42901-0417-4e0d-a386-b9614f852d32",
-	                "protocol_port": 443,
-	                "subnet": "458731a9-9be4-4aa9-8dc7-41287aec76df"
-	            },
-	            "vip": {
-	                "subnet": "458731a9-9be4-4aa9-8dc7-41287aec76df"
-	            }
-	        },
-	        "type": "senlin.policy.deletion",
-	        "version": "1.1"
-	    },
-	    "type": "senlin.policy.deletion-1.1",
-	    "updated_at": null,
-	    "user": "4e41dd85e4624341ba41e046c9654d2c"
-	}
-*/
 type AutoScalingAction struct {
 	Action       string  `json:"action"`
 	Cause        string  `json:"cause"`
@@ -172,6 +96,6 @@ func (s *autoscalinggroup) Create(params map[string]interface{}) (AutoScalingGro
 	if err != nil {
 		return response, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	return response, err
 }

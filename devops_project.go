@@ -41,7 +41,7 @@ func (s *devopsproject) Get(id string) (DevopsProject, error) {
 	if err != nil {
 		return nilres, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
+	err = json.Unmarshal([]byte(jsonStr), &response)
 	if err != nil {
 		return nilres, err
 	}
@@ -69,6 +69,6 @@ func (s *devopsproject) Create(params map[string]interface{}) (DevopsProject, er
 	if err != nil {
 		return response, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	return response, err
 }

@@ -39,13 +39,15 @@ type RedisInstance struct {
 	DatastoreMode     string                    `json:"datastoreMode"`
 	GroupConfigID     string                    `json:"groupConfigId"`
 	SecurityClientIds string                    `json:"securityClientIds"`
-	VpcID             string                    `json:"vpcId"`
 	SubnetID          string                    `json:"subnetId"`
-	EnableMonitor     bool                      `json:"enableMonitor"`
 	Status            string                    `json:"status"`
-	DataDetail        RedisDataDetailFromString `json:"dataDetail"`
+	FlavorID          string                    `json:"flavorId"`
+	SubnetName        string                    `json:"subnetName"`
+	FlavorName        string                    `json:"flavorName"`
+	VolumeSize        int                       `json:"volumeSize"`
 	Created           string                    `json:"created"`
 	Updated           string                    `json:"updated"`
+	DataDetail        RedisDataDetailFromString `json:"dataDetail"`
 }
 
 type RedisInstanceCreateResponse struct {
@@ -71,18 +73,17 @@ func (b *RedisDataDetailFromString) UnmarshalJSON(data []byte) error {
 
 type RedisDataDetail struct {
 	MasterInfo struct {
-		ID                 string `json:"id"`
-		OsServerID         string `json:"osServerId"`
-		Role               string `json:"role"`
-		IPAddress          string `json:"ipAddress"`
-		RAM                int    `json:"ram"`
-		Disk               int    `json:"disk"`
-		VolumeSize         int    `json:"volumeSize"`
-		ZoneName           string `json:"zoneName"`
-		Status             string `json:"status"`
-		MonitorResourceID  string `json:"monitorResourceId"`
-		StatusAgentMonitor string `json:"statusAgentMonitor"`
-		Vcpus              int    `json:"vcpus"`
+		ID                string `json:"id"`
+		OsServerID        string `json:"osServerId"`
+		Role              string `json:"role"`
+		IPAddress         string `json:"ipAddress"`
+		RAM               int    `json:"ram"`
+		Disk              int    `json:"disk"`
+		VolumeSize        int    `json:"volumeSize"`
+		ZoneName          string `json:"zoneName"`
+		Status            string `json:"status"`
+		MonitorResourceID string `json:"monitorResourceId"`
+		Vcpus             int    `json:"vcpus"`
 	} `json:"masterInfo"`
 	SlavesInfo []struct {
 		ID                 string `json:"id"`
@@ -129,8 +130,12 @@ type redisinstance struct {
 func (v *redisinstance) Get(id string) (RedisInstance, error) {
 	jsonStr, err := v.client.Get("cloudops-core/api/v1/dbaas/instance/"+id, map[string]string{})
 	var obj RedisInstanceWrapper
-	if err == nil {
-		err = json.Unmarshal([]byte(jsonStr), &obj)
+	if err != nil {
+		return RedisInstance{}, err
+	}
+	err = json.Unmarshal([]byte(jsonStr), &obj)
+	if err != nil {
+		return RedisInstance{}, err
 	}
 	return obj.Data, err
 }
@@ -138,16 +143,27 @@ func (v *redisinstance) Get(id string) (RedisInstance, error) {
 func (v *redisinstance) List(params map[string]string) ([]RedisInstance, error) {
 	jsonStr, err := v.client.Get("cloudops-core/api/v1/dbaas/instance", params)
 	var obj RedisInstanceListWrapper
-	if err == nil {
-		err = json.Unmarshal([]byte(jsonStr), &obj)
+	if err != nil {
+		return []RedisInstance{}, err
+	}
+	err = json.Unmarshal([]byte(jsonStr), &obj)
+
+	if err != nil {
+		return []RedisInstance{}, err
 	}
 	return obj.Data.Docs, err
 }
 func (v *redisinstance) ListDatastore(params map[string]string) ([]RedisDatastore, error) {
 	jsonStr, err := v.client.Get("cloudops-core/api/v1/dbaas/datastore?datastoreCode=redis", params)
 	var obj RedisDatastoreListWrapper
-	if err == nil {
-		err = json.Unmarshal([]byte(jsonStr), &obj)
+
+	if err != nil {
+		return []RedisDatastore{}, err
+	}
+	err = json.Unmarshal([]byte(jsonStr), &obj)
+
+	if err != nil {
+		return []RedisDatastore{}, err
 	}
 	return obj.Data.Docs, err
 }
@@ -214,8 +230,8 @@ func (s *redisinstance) Create(params map[string]interface{}) (RedisInstanceCrea
 	if err != nil {
 		return response, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	return response, err
 }
 
 func (s *redisinstance) CreateBackup(id string, params map[string]interface{}) (RedisBackup, error) {
@@ -224,8 +240,8 @@ func (s *redisinstance) CreateBackup(id string, params map[string]interface{}) (
 	if err != nil {
 		return response, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	return response, err
 }
 func (s *redisinstance) CreateSnapshot(id string, params map[string]interface{}) (RedisSnapshot, error) {
 	jsonStr, err := s.client.Post("cloudops-core/api/v1/dbaas/instance/"+id+"/snapshot", params)
@@ -233,6 +249,6 @@ func (s *redisinstance) CreateSnapshot(id string, params map[string]interface{})
 	if err != nil {
 		return response, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	return response, err
 }

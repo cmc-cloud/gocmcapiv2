@@ -57,6 +57,10 @@ func (v *dnsacl) Get(zone_id string, id string) (DnsAcl, error) {
 	if err == nil {
 		err = json.Unmarshal([]byte(jsonStr), &dnsacl)
 	}
+
+	if err != nil {
+		return DnsAcl{}, err
+	}
 	return dnsacl.Acl, err
 }
 func (v *dnsacl) List(zone_id string, params map[string]string) ([]DnsAcl, error) {
@@ -64,6 +68,10 @@ func (v *dnsacl) List(zone_id string, params map[string]string) ([]DnsAcl, error
 	var dnsacl DnsAclListWrapper
 	if err == nil {
 		err = json.Unmarshal([]byte(jsonStr), &dnsacl)
+	}
+
+	if err != nil {
+		return []DnsAcl{}, err
 	}
 	return dnsacl.Result, err
 }
@@ -74,11 +82,10 @@ func (v *dnsacl) Create(zone_id string, params map[string]interface{}) (DnsAcl, 
 	jsonStr, err := v.client.Post("dns/dns/zones/"+zone_id+"/acls", params)
 	var response DnsAclWrapper
 	if err != nil {
-		var nilres DnsAcl
-		return nilres, err
+		return DnsAcl{}, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response.Acl, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	return response.Acl, err
 }
 
 func (v *dnsacl) Update(zone_id string, id string, params map[string]interface{}) (ActionResponse, error) {

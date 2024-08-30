@@ -231,8 +231,12 @@ func (v *kubernetesv2) GetStatus(id string) (Kubernetesv2Status, error) {
 func (s *kubernetesv2) List(params map[string]string) ([]Kubernetesv2ListItem, error) {
 	jsonStr, err := s.client.Get("cloudops-core/api/v1/k8s/clusters", params)
 	var obj Kubernetesv2ListWrapper
-	if err == nil {
-		err = json.Unmarshal([]byte(jsonStr), &obj)
+	if err != nil {
+		return []Kubernetesv2ListItem{}, err
+	}
+	err = json.Unmarshal([]byte(jsonStr), &obj)
+	if err != nil {
+		return []Kubernetesv2ListItem{}, err
 	}
 	return obj.Data.Docs, err
 }
@@ -244,18 +248,23 @@ func (s *kubernetesv2) GetNodeGroups(id string, show_nodes bool) ([]Kubernetesv2
 		return nilres, err
 	}
 	err = json.Unmarshal([]byte(jsonStr), &obj)
+	if err != nil {
+		return []Kubernetesv2NodeGroup{}, err
+	}
 	return obj.Data, err
 }
 func (v *kubernetesv2) GetNodeGroup(id string, nodegroup_id string) (Kubernetesv2NodeGroup, error) {
 	jsonStr, err := v.client.Get("cloudops-core/api/v1/k8s/clusters/"+id+"/node-groups/"+nodegroup_id, map[string]string{})
 	var response Kubernetesv2NodeGroupWrapper
+	var nilres Kubernetesv2NodeGroup
 	if err != nil {
-		var nilres Kubernetesv2NodeGroup
 		return nilres, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	// Logo("get nodegroup ", response)
-	return response.Data, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	if err != nil {
+		return nilres, err
+	}
+	return response.Data, err
 }
 
 // Delete a kubernetesv2
@@ -271,19 +280,22 @@ func (s *kubernetesv2) Create(params map[string]interface{}) (Kubernetesv2Create
 	if err != nil {
 		return response, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	return response, err
 }
 
 func (s *kubernetesv2) CreateNodeGroup(id string, params map[string]interface{}) (Kubernetesv2NodeGroup, error) {
 	jsonStr, err := s.client.Post("cloudops-core/api/v1/k8s/clusters/"+id+"/node-groups", params)
 	var response Kubernetesv2NodeGroupWrapper
+	var nilres Kubernetesv2NodeGroup
 	if err != nil {
-		var nilres Kubernetesv2NodeGroup
 		return nilres, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response.Data, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	if err != nil {
+		return nilres, err
+	}
+	return response.Data, err
 }
 
 func (s *kubernetesv2) UpdateNodeGroup(id string, params map[string]interface{}) (ActionResponse, error) {

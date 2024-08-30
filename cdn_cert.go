@@ -55,6 +55,9 @@ func (v *cdncert) List(params map[string]string) ([]CDNCert, error) {
 	if err == nil {
 		err = json.Unmarshal([]byte(jsonStr), &cdncert)
 	}
+	if err != nil {
+		return []CDNCert{}, err
+	}
 	return cdncert.Data, err
 }
 func (v *cdncert) Delete(id string) (ActionResponse, error) {
@@ -66,8 +69,11 @@ func (v *cdncert) Create(params map[string]interface{}) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response.Data.ID, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	if err != nil {
+		return "", err
+	}
+	return response.Data.ID, err
 }
 func (s *cdncert) Update(id string, params map[string]interface{}) (ActionResponse, error) {
 	return s.client.PerformUpdate("cdn/ssl/"+id, params)

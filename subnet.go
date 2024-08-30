@@ -71,6 +71,6 @@ func (s *subnet) Create(params map[string]interface{}) (Subnet, error) {
 	if err != nil {
 		return response, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	return response, err
 }

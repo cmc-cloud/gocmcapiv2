@@ -34,8 +34,11 @@ func (b *billingmode) GetBilingMode(id string, resource_type string) (string, er
 	if err != nil {
 		return "", err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response.BillingMode, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	if err != nil {
+		return "", err
+	}
+	return response.BillingMode, err
 }
 
 func (b *billingmode) SetBilingMode(params map[string]interface{}) (ActionResponse, error) {

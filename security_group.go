@@ -83,8 +83,8 @@ func (v *securitygroup) CreateRule(id string, params map[string]interface{}) (Se
 	if err != nil {
 		return response, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	return response, err
 }
 func (s *securitygroup) Create(params map[string]interface{}) (SecurityGroup, error) {
 	jsonStr, err := s.client.Post("network/securitygroup", params)
@@ -92,6 +92,6 @@ func (s *securitygroup) Create(params map[string]interface{}) (SecurityGroup, er
 	if err != nil {
 		return response, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
-	return response, nil
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	return response, err
 }
