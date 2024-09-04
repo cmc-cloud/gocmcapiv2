@@ -147,12 +147,6 @@ type Kubernetesv2ListWrapper struct {
 type Kubernetesv2ListItem struct {
 	ClusterID        string `json:"clusterId"`
 	ClusterName      string `json:"clusterName"`
-	UsedCPU          int    `json:"usedCpu"`
-	UsedRAM          int    `json:"usedRam"`
-	TotalCPU         int    `json:"totalCpu"`
-	TotalRAM         int    `json:"totalRam"`
-	UsedPod          int    `json:"usedPod"`
-	TotalPod         int    `json:"totalPod"`
 	State            string `json:"state"`
 	NumberMasterNode int    `json:"numberMasterNode"`
 	NumberWorkerNode int    `json:"numberWorkerNode"`
@@ -162,12 +156,6 @@ type Kubernetesv2ListItem struct {
 type Kubernetesv2 struct {
 	ClusterID        string `json:"clusterId"`
 	ClusterName      string `json:"clusterName"`
-	UsedCPU          int    `json:"usedCpu"`
-	UsedRAM          int    `json:"usedRam"`
-	TotalCPU         int    `json:"totalCpu"`
-	TotalRAM         int    `json:"totalRam"`
-	UsedPod          int    `json:"usedPod"`
-	TotalPod         int    `json:"totalPod"`
 	State            string `json:"state"`
 	NumberMasterNode int    `json:"numberMasterNode"`
 	NumberWorkerNode int    `json:"numberWorkerNode"`
@@ -195,16 +183,6 @@ type Kubernetesv2CreatedResponse struct {
 	Data struct {
 		ID   string `json:"id"`
 		Name string `json:"name"`
-		// Namespace                   string `json:"namespace"`
-		// ClusterNetworkServiceDomain string `json:"clusterNetworkServiceDomain"`
-		// KubeadmControlPlaneID       string `json:"kubeadmControlPlaneId"`
-		// ClusterNetworkAPIServerPort string `json:"clusterNetworkApiServerPort"`
-		// Paused                      string `json:"paused"`
-		// TeamCode                    string `json:"teamCode"`
-		// ProjectID                   string `json:"projectId"`
-		// ClusterAPIID                string `json:"clusterApiId"`
-		// CreatedAt                   string `json:"createdAt"`
-		// UpdatedAt                   string `json:"updatedAt"`
 	} `json:"data"`
 }
 
