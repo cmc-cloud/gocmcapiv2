@@ -15,6 +15,7 @@ type BillingModeService interface {
 	SetEFSBilingMode(id string, billing_mode string) (ActionResponse, error)
 	SetRedisInstanceBilingMode(id string, billing_mode string) (ActionResponse, error)
 	GetBilingMode(id string, resource_type string) (string, error)
+	SetKubernateNodeGroupBilingMode(cluster_id string, nodegroup_id string, billing_mode string) (ActionResponse, error)
 }
 
 type BillingMode struct {
@@ -65,6 +66,9 @@ func (b *billingmode) SetLoadBalancerBilingMode(id string, billing_mode string) 
 }
 func (b *billingmode) SetKubernateBilingMode(id string, billing_mode string, node_group_role string) (ActionResponse, error) {
 	return b.SetBilingMode(map[string]interface{}{"resource_type": "CKE", "resource_id": id, "billing_mode": billing_mode, "node_group_role": node_group_role})
+}
+func (b *billingmode) SetKubernateNodeGroupBilingMode(cluster_id string, node_group_id string, billing_mode string) (ActionResponse, error) {
+	return b.SetBilingMode(map[string]interface{}{"resource_type": "Nodegroup", "resource_id": cluster_id, "billing_mode": billing_mode, "node_group_id": node_group_id})
 }
 func (b *billingmode) SetVPNBilingMode(id string, billing_mode string) (ActionResponse, error) {
 	return b.SetBilingMode(map[string]interface{}{"resource_type": "VPN", "resource_id": id, "billing_mode": billing_mode})
