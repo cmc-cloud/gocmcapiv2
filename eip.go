@@ -50,13 +50,13 @@ type EIP struct {
 		DeviceID     string `json:"device_id"`
 		DeviceOwner  string `json:"device_owner"`
 	} `json:"port_details"`
-	DNSDomain             string   `json:"dns_domain"`
-	DNSName               string   `json:"dns_name"`
-	Tags                  []string `json:"tags"`
-	CreatedAt             string   `json:"created_at"`
-	DomesticBandwidthMbps int      `json:"domestic_bandwidth_mbps"`
-	InterBandwidthMbps    int      `json:"inter_bandwidth_mbps"`
-	BillingMode           string   `json:"billing_mode"`
+	DNSDomain             string `json:"dns_domain"`
+	DNSName               string `json:"dns_name"`
+	Tags                  []Tag  `json:"tags"`
+	CreatedAt             string `json:"created_at"`
+	DomesticBandwidthMbps int    `json:"domestic_bandwidth_mbps"`
+	InterBandwidthMbps    int    `json:"inter_bandwidth_mbps"`
+	BillingMode           string `json:"billing_mode"`
 	// PortForwardings       []PortForwarding `json:"port_forwardings"`
 }
 

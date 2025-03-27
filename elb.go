@@ -91,7 +91,7 @@ type ELBPool struct {
 	CreatedAt       string   `json:"created_at"`
 	HealthmonitorID string   `json:"healthmonitor_id"`
 	Members         []any    `json:"members"`
-	Tags            []any    `json:"tags"`
+	Tags            []Tag    `json:"tags"`
 	TLSContainerRef any      `json:"tls_container_ref"`
 	TLSEnabled      bool     `json:"tls_enabled"`
 	TLSCiphers      string   `json:"tls_ciphers"`
@@ -153,7 +153,7 @@ type ELBListener struct {
 	TimeoutTCPInspect       int      `json:"timeout_tcp_inspect"`
 	ConnectionLimit         int      `json:"connection_limit"`
 	AllowedCidrs            []string `json:"allowed_cidrs"`
-	Tags                    []string `json:"tags"`
+	Tags                    []Tag    `json:"tags"`
 	ClientCaTLSContainerRef string   `json:"client_ca_tls_container_ref"`
 	ClientCrlContainerRef   string   `json:"client_crl_container_ref"`
 	TLSCiphers              string   `json:"tls_ciphers"`
@@ -192,12 +192,12 @@ type ELB struct {
 	Pools []struct {
 		ID string `json:"id"`
 	} `json:"pools"`
-	FlavorID              string   `json:"flavor_id"`
-	VipQosPolicyID        string   `json:"vip_qos_policy_id"`
-	Tags                  []string `json:"tags"`
-	BillingMode           string   `json:"billing_mode"`
-	AvailabilityZone      string   `json:"availability_zone"`
-	DomesticBandwidthMbps int      `json:"domestic_bandwidth_mbps"`
+	FlavorID              string `json:"flavor_id"`
+	VipQosPolicyID        string `json:"vip_qos_policy_id"`
+	Tags                  []Tag  `json:"tags"`
+	BillingMode           string `json:"billing_mode"`
+	AvailabilityZone      string `json:"availability_zone"`
+	DomesticBandwidthMbps int    `json:"domestic_bandwidth_mbps"`
 }
 
 type elb struct {

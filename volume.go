@@ -38,7 +38,7 @@ type Volume struct {
 		ServerID     string `json:"server_id"`
 		Device       string `json:"device"`
 	} `json:"attachments"`
-	Tags                []any  `json:"tags"`
+	Tags                []Tag  `json:"tags"`
 	BillingMode         string `json:"billing_mode"`
 	DeleteOnTermination bool   `json:"delete_on_termination"`
 }

@@ -85,6 +85,11 @@ type APIError struct {
 		ErrorText string `json:"message"`
 	} `json:"error"`
 }
+type DevOpsError struct {
+	Success   bool   `json:"success"`
+	ErrorCode int    `json:"code"`
+	ErrorText string `json:"message"`
+}
 type SecurityAPIError struct {
 	ErrorCode int    `json:"code"`
 	ErrorText string `json:"error"`
@@ -194,6 +199,21 @@ func (c *Client) parseResponse(response *resty.Response, err error) (string, err
 			}
 			return restext, fmt.Errorf("Error %d: %s", apiError.Error.ErrorCode, apiError.Error.ErrorText)
 		}
+	}
+
+	if strings.Contains(restext, "code") && strings.Contains(restext, "message") {
+		var apiError DevOpsError
+		json.Unmarshal([]byte(restext), &apiError)
+		// return restext, fmt.Errorf("Error %d: %s", apiError.Error.ErrorCode, apiError.Error.ErrorText)
+		if apiError.ErrorCode == 0 {
+			apiError.ErrorCode = response.StatusCode()
+		}
+
+		code := apiError.ErrorCode
+		if code == http.StatusNotFound {
+			return restext, fmt.Errorf("%s: %w", apiError.ErrorText, ErrNotFound)
+		}
+		return restext, fmt.Errorf("Error %d: %s", apiError.ErrorCode, apiError.ErrorText)
 	}
 
 	if strings.Contains(restext, "error_code") && strings.Contains(restext, "error_text") {

@@ -12,15 +12,15 @@ type ImageService interface {
 
 // Image object
 type Image struct {
-	Architecture string   `json:"architecture"`
-	OsDistro     string   `json:"os_distro"`
-	Name         string   `json:"name"`
-	Visibility   string   `json:"visibility"`
-	Status       string   `json:"status"`
-	ID           string   `json:"id"`
-	CreatedAt    string   `json:"created_at"`
-	Tags         []string `json:"tags"`
-	Os           string   `json:"os"`
+	Architecture string `json:"architecture"`
+	OsDistro     string `json:"os_distro"`
+	Name         string `json:"name"`
+	Visibility   string `json:"visibility"`
+	Status       string `json:"status"`
+	ID           string `json:"id"`
+	CreatedAt    string `json:"created_at"`
+	Tags         []Tag  `json:"tags"`
+	Os           string `json:"os"`
 	// DiskFormat   string   `json:"disk_format"`
 	// Protected    bool     `json:"protected"`
 	// MinDisk      int      `json:"min_disk"`

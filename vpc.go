@@ -23,7 +23,7 @@ type VPC struct {
 	CreatedAt   string `json:"created_at"`
 	ProjectID   string `json:"project_id"`
 	RouterID    string `json:"router_id"`
-	Tags        []any  `json:"tags"`
+	Tags        []Tag  `json:"tags"`
 	BillingMode string `json:"billing_mode"`
 }
 type vpc struct {

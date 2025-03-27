@@ -32,7 +32,7 @@ type Subnet struct {
 	AllocationPools []AllocationPool `json:"allocation_pools"`
 	HostRoutes      []HostRoute      `json:"host_routes"`
 	DNSNameservers  []string         `json:"dns_nameservers"`
-	Tags            []string         `json:"tags"`
+	Tags            []Tag            `json:"tags"`
 	CreatedAt       string           `json:"created_at"`
 	VpcID           string           `json:"vpc_id"`
 	NetworkID       string           `json:"network_id"`

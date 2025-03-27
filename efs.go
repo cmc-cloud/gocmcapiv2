@@ -16,22 +16,22 @@ type EFSService interface {
 
 // EFS object
 type EFS struct {
-	ID           string   `json:"id"`
-	Name         string   `json:"name"`
-	Description  string   `json:"description"`
-	Type         string   `json:"type"`
-	Used         int      `json:"used"`
-	Capacity     int      `json:"capacity"`
-	ProtocolType string   `json:"protocol_type"`
-	VpcID        string   `json:"vpc_id"`
-	SubnetID     string   `json:"subnet_id"`
-	CreatedAt    string   `json:"created_at"`
-	Endpoint     string   `json:"endpoint"`
-	Tags         []string `json:"tags"`
-	Status       string   `json:"status"`
-	CommandLine  string   `json:"command_line"`
-	SharedPath   string   `json:"shared_path"`
-	BillingMode  string   `json:"billing_mode"`
+	ID           string `json:"id"`
+	Name         string `json:"name"`
+	Description  string `json:"description"`
+	Type         string `json:"type"`
+	Used         int    `json:"used"`
+	Capacity     int    `json:"capacity"`
+	ProtocolType string `json:"protocol_type"`
+	VpcID        string `json:"vpc_id"`
+	SubnetID     string `json:"subnet_id"`
+	CreatedAt    string `json:"created_at"`
+	Endpoint     string `json:"endpoint"`
+	Tags         []Tag  `json:"tags"`
+	Status       string `json:"status"`
+	CommandLine  string `json:"command_line"`
+	SharedPath   string `json:"shared_path"`
+	BillingMode  string `json:"billing_mode"`
 }
 
 type efs struct {

@@ -89,7 +89,7 @@ type Server struct {
 	BillingMode      string                `json:"billing_mode"`
 	Volumes          []Volume              `json:"volumes"`
 	Description      string                `json:"description"`
-	Tags             []string              `json:"tags"`
+	Tags             []Tag                 `json:"tags"`
 	Nics             []Nic                 `json:"nics"`
 	// Metadata   []any  `json:"metadata"`
 	// Image      string `json:"image"`
