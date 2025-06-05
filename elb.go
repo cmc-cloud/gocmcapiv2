@@ -37,6 +37,18 @@ type ELBService interface {
 	DeletePool(id string) (ActionResponse, error)
 	DeleteHealthMonitor(id string) (ActionResponse, error)
 	DeletePoolMember(id string, member_id string) (ActionResponse, error)
+
+	GetL7Policy(id string) (L7Policy, error)
+	ListL7Policies(listenerID string) ([]L7Policy, error)
+	CreateL7Policy(params map[string]interface{}) (L7Policy, error)
+	UpdateL7Policy(id string, params map[string]interface{}) (L7Policy, error)
+	DeleteL7Policy(id string) (ActionResponse, error)
+
+	GetL7PolicyRule(policy_id string, rule_id string) (L7PolicyRule, error)
+	ListL7PolicyRules(policy_id string) ([]L7PolicyRule, error)
+	CreateL7PolicyRule(policy_id string, params map[string]interface{}) (L7PolicyRule, error)
+	UpdateL7PolicyRule(policy_id string, rule_id string, params map[string]interface{}) (L7PolicyRule, error)
+	DeleteL7PolicyRule(policy_id string, rule_id string) (ActionResponse, error)
 }
 
 type ELBFlavor struct {
@@ -359,4 +371,138 @@ func (s *elb) ListFlavors() ([]ELBFlavor, error) {
 	flavors := make([]ELBFlavor, 0)
 	err = json.Unmarshal([]byte(restext), &flavors)
 	return flavors, err
+}
+
+// L7 Policy functions
+type L7Policy struct {
+	ID                 string `json:"id"`
+	Name               string `json:"name"`
+	Description        string `json:"description"`
+	ProvisioningStatus string `json:"provisioning_status"`
+	OperatingStatus    string `json:"operating_status"`
+	ProjectID          string `json:"project_id"`
+	Action             string `json:"action"`
+	ListenerID         string `json:"listener_id"`
+	RedirectPoolID     any    `json:"redirect_pool_id"`
+	RedirectURL        string `json:"redirect_url"`
+	RedirectPrefix     any    `json:"redirect_prefix"`
+	Position           int    `json:"position"`
+	Rules              []struct {
+		ID string `json:"id"`
+	} `json:"rules"`
+	CreatedAt        string `json:"created_at"`
+	UpdatedAt        string `json:"updated_at"`
+	Tags             []any  `json:"tags"`
+	RedirectHTTPCode int    `json:"redirect_http_code"`
+}
+
+// GetL7Policy retrieves a specific L7 policy by its ID.
+func (v *elb) GetL7Policy(id string) (L7Policy, error) {
+	jsonStr, err := v.client.Get("lbaas/l7policy/"+id, map[string]string{})
+	var l7policy L7Policy
+	if err == nil {
+		err = json.Unmarshal([]byte(jsonStr), &l7policy)
+	}
+	return l7policy, err
+}
+
+// ListL7Policies lists all L7 policies for a given listener ID.
+func (v *elb) ListL7Policies(listenerID string) ([]L7Policy, error) {
+	params := map[string]string{}
+	if listenerID != "" {
+		params["listener_id"] = listenerID
+	}
+	jsonStr, err := v.client.Get("lbaas/l7policy", params)
+	var l7policies []L7Policy
+	if err == nil {
+		err = json.Unmarshal([]byte(jsonStr), &l7policies)
+	}
+	return l7policies, err
+}
+
+// CreateL7Policy creates a new L7 policy.
+func (v *elb) CreateL7Policy(params map[string]interface{}) (L7Policy, error) {
+	jsonStr, err := v.client.Post("lbaas/l7policy", params)
+	var l7policy L7Policy
+	if err == nil {
+		err = json.Unmarshal([]byte(jsonStr), &l7policy)
+	}
+	return l7policy, err
+}
+
+// UpdateL7Policy updates an existing L7 policy by its ID.
+func (v *elb) UpdateL7Policy(id string, params map[string]interface{}) (L7Policy, error) {
+	jsonStr, err := v.client.Put("lbaas/l7policy/"+id, params)
+	var l7policy L7Policy
+	if err == nil {
+		err = json.Unmarshal([]byte(jsonStr), &l7policy)
+	}
+	return l7policy, err
+}
+
+// DeleteL7Policy deletes an L7 policy by its ID.
+func (v *elb) DeleteL7Policy(id string) (ActionResponse, error) {
+	return v.client.PerformDelete("lbaas/l7policy/" + id)
+}
+
+type L7PolicyRule struct {
+	ID                 string `json:"id"`
+	Type               string `json:"type"`
+	CompareType        string `json:"compare_type"`
+	Key                string `json:"key"`
+	Value              string `json:"value"`
+	Invert             bool   `json:"invert"`
+	ProvisioningStatus string `json:"provisioning_status"`
+	OperatingStatus    string `json:"operating_status"`
+	CreatedAt          string `json:"created_at"`
+	UpdatedAt          string `json:"updated_at"`
+	ProjectID          string `json:"project_id"`
+	AdminStateUp       bool   `json:"admin_state_up"`
+	Tags               []any  `json:"tags"`
+	TenantID           string `json:"tenant_id"`
+}
+
+// GetL7PolicyRule retrieves a specific L7 policy rule by its ID.
+func (v *elb) GetL7PolicyRule(policy_id string, rule_id string) (L7PolicyRule, error) {
+	jsonStr, err := v.client.Get("lbaas/l7policy/"+policy_id+"/rule/"+rule_id, nil)
+	var rule L7PolicyRule
+	if err == nil {
+		err = json.Unmarshal([]byte(jsonStr), &rule)
+	}
+	return rule, err
+}
+
+// ListL7PolicyRules lists all L7 policy rules for a given L7 policy.
+func (v *elb) ListL7PolicyRules(policy_id string) ([]L7PolicyRule, error) {
+	jsonStr, err := v.client.Get("lbaas/l7policy/"+policy_id+"/rule", map[string]string{})
+	var rules []L7PolicyRule
+	if err == nil {
+		err = json.Unmarshal([]byte(jsonStr), &rules)
+	}
+	return rules, err
+}
+
+// CreateL7PolicyRule creates a new L7 policy rule.
+func (v *elb) CreateL7PolicyRule(policy_id string, params map[string]interface{}) (L7PolicyRule, error) {
+	jsonStr, err := v.client.Post("lbaas/l7policy/"+policy_id+"/rule", params)
+	var rule L7PolicyRule
+	if err == nil {
+		err = json.Unmarshal([]byte(jsonStr), &rule)
+	}
+	return rule, err
+}
+
+// UpdateL7PolicyRule updates an existing L7 policy rule by its ID.
+func (v *elb) UpdateL7PolicyRule(policy_id string, rule_id string, params map[string]interface{}) (L7PolicyRule, error) {
+	jsonStr, err := v.client.Put("lbaas/l7policy/"+policy_id+"/rule/"+rule_id, params)
+	var rule L7PolicyRule
+	if err == nil {
+		err = json.Unmarshal([]byte(jsonStr), &rule)
+	}
+	return rule, err
+}
+
+// DeleteL7PolicyRule deletes an L7 policy rule by its ID.
+func (v *elb) DeleteL7PolicyRule(policy_id string, rule_id string) (ActionResponse, error) {
+	return v.client.PerformDelete("lbaas/l7policy/" + policy_id + "/rule/" + rule_id)
 }
