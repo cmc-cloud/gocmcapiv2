@@ -182,6 +182,7 @@ type ELBPoolMember struct {
 	CreatedAt          string `json:"created_at"`
 	MonitorAddress     string `json:"monitor_address"`
 	MonitorPort        int    `json:"monitor_port"`
+	Backup             bool   `json:"backup"`
 	OperatingStatus    string `json:"operating_status"`
 	ProvisioningStatus string `json:"provisioning_status"`
 }

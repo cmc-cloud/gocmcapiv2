@@ -66,9 +66,16 @@ type AutoScalev2Config struct {
 	// MemoryThreshold   string `json:"memoryThreshold"`
 	// CPUThreshold      string `json:"cpuThreshold"`
 	// DiskThreshold     string `json:"diskThreshold"`
-	MaxPods           int `json:"maxPods"`
-	MinNode           int `json:"minNode"`
-	MaxNode           int `json:"maxNode"`
+	MinNode int `json:"minNode"`
+	MaxNode int `json:"maxNode"`
+	// MaxPods       int `json:"maxPods"`
+	// CurrentNode   int `json:"currentNode"`
+	// NodeMetadatas []struct {
+	// 	Key    string `json:"key"`
+	// 	Value  string `json:"value"`
+	// 	Type   string `json:"type"`
+	// 	Effect string `json:"effect"`
+	// } `json:"nodeMetadatas"`
 	MetaDataAutoScale struct {
 		PercentCPU    int `json:"percentCpu"`
 		PercentMemory int `json:"percentMemory"`
