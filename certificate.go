@@ -14,10 +14,12 @@ type CertificateService interface {
 
 // Certificate object
 type Certificate struct {
+	ID         string `json:"id"`
 	Created    string `json:"created"`
 	Status     string `json:"status"`
 	Name       string `json:"name"`
 	SecretType string `json:"secret_type"`
+	SecretRef  string `json:"secret_ref"`
 }
 type certificate struct {
 	client *Client
