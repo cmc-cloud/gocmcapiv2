@@ -153,9 +153,9 @@ type ELBListener struct {
 	DefaultTLSContainerRef string   `json:"default_tls_container_ref"`
 	SniContainerRefs       []string `json:"sni_container_refs"`
 	DefaultPoolID          string   `json:"default_pool_id"`
-	L7Policies             []struct {
-		ID string `json:"id"`
-	} `json:"l7policies"`
+	// L7Policies             []struct {
+	// 	ID string `json:"id"`
+	// } `json:"l7policies"`
 	InsertHeaders InsertHeadersOrArray `json:"insert_headers"`
 	CreatedAt     string               `json:"created_at"`
 	Loadbalancers []struct {
