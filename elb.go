@@ -171,7 +171,7 @@ type ELBListener struct {
 	ClientCaTLSContainerRef string   `json:"client_ca_tls_container_ref"`
 	ClientCrlContainerRef   string   `json:"client_crl_container_ref"`
 	TLSCiphers              string   `json:"tls_ciphers"`
-	TLSVersions             string   `json:"tls_versions"`
+	TLSVersions             []string `json:"tls_versions"`
 	// AllowedCidrs            string   `json:"allowed_cidrs"`
 }
 type ELBPoolMember struct {
