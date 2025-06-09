@@ -143,20 +143,22 @@ func (i *InsertHeadersOrArray) UnmarshalJSON(data []byte) error {
 }
 
 type ELBListener struct {
-	ID                     string               `json:"id"`
-	Name                   string               `json:"name"`
-	Description            string               `json:"description"`
-	ProvisioningStatus     string               `json:"provisioning_status"`
-	OperatingStatus        string               `json:"operating_status"`
-	Protocol               string               `json:"protocol"`
-	ProtocolPort           int                  `json:"protocol_port"`
-	DefaultTLSContainerRef string               `json:"default_tls_container_ref"`
-	SniContainerRefs       []string             `json:"sni_container_refs"`
-	DefaultPoolID          string               `json:"default_pool_id"`
-	L7Policies             []string             `json:"l7policies"`
-	InsertHeaders          InsertHeadersOrArray `json:"insert_headers"`
-	CreatedAt              string               `json:"created_at"`
-	Loadbalancers          []struct {
+	ID                     string   `json:"id"`
+	Name                   string   `json:"name"`
+	Description            string   `json:"description"`
+	ProvisioningStatus     string   `json:"provisioning_status"`
+	OperatingStatus        string   `json:"operating_status"`
+	Protocol               string   `json:"protocol"`
+	ProtocolPort           int      `json:"protocol_port"`
+	DefaultTLSContainerRef string   `json:"default_tls_container_ref"`
+	SniContainerRefs       []string `json:"sni_container_refs"`
+	DefaultPoolID          string   `json:"default_pool_id"`
+	L7Policies             []struct {
+		ID string `json:"id"`
+	} `json:"l7policies"`
+	InsertHeaders InsertHeadersOrArray `json:"insert_headers"`
+	CreatedAt     string               `json:"created_at"`
+	Loadbalancers []struct {
 		ID string `json:"id"`
 	} `json:"loadbalancers"`
 	TimeoutClientData       int      `json:"timeout_client_data"`
