@@ -40,6 +40,11 @@ type Client struct {
 	NetworkInterface         NetworkInterfaceService
 	VolumeAutoBackup         VolumeAutoBackupService
 	VPC                      VPCService
+	IamUser                  IamUserService
+	IamGroup                 IamGroupService
+	IamProject               IamProjectService
+	IamRole                  IamRoleService
+	IamCustomRole            IamCustomRoleService
 	Subnet                   SubnetService
 	EIP                      EIPService
 	ELB                      ELBService
@@ -151,6 +156,12 @@ func NewClient(configs ClientConfigs) (*Client, error) {
 	c.AutoScalingGroup = &autoscalinggroup{client: c}
 	c.AutoScalingPolicy = &autoscalingpolicy{client: c}
 	c.BillingMode = &billingmode{client: c}
+
+	c.IamProject = &iamproject{client: c}
+	c.IamGroup = &iamgroup{client: c}
+	c.IamUser = &iamuser{client: c}
+	c.IamRole = &iamrole{client: c}
+	c.IamCustomRole = &iamcustomrole{client: c}
 	return c, nil
 }
 
