@@ -26,7 +26,7 @@ type SecurityGroupRule struct {
 	PortRangeMax         int    `json:"port_range_max"`
 	CIDR                 any    `json:"remote_ip_prefix"`
 	RemoteAddressGroupID any    `json:"remote_address_group_id"`
-	DestSecuritygroupID  any    `json:"remote_group_id"`
+	RemoteGroupID        any    `json:"remote_group_id"`
 	Description          string `json:"description"`
 	CreatedAt            string `json:"created_at"`
 }

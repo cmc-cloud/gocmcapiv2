@@ -20,7 +20,7 @@ type IamUserService interface {
 
 // IamUser object
 type IamUser struct {
-	// ID        string `json:"id"`
+	ID        string `json:"id"`
 	Username  string `json:"username"`
 	FirstName string `json:"firstName"`
 	LastName  string `json:"lastName"`
