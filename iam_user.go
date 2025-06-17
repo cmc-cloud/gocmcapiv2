@@ -11,6 +11,7 @@ type IamUserService interface {
 	List(params map[string]string) ([]IamUser, error)
 	Create(params map[string]interface{}) (IamUser, error)
 	Update(username string, params map[string]interface{}) (ActionResponse, error)
+	UpdateEmail(username string, email string) (ActionResponse, error)
 	SetPassword(username string, params map[string]interface{}) (ActionResponse, error)
 	SetServerPermission(username string, params map[string]interface{}) (ActionResponse, error)
 	Delete(id string) (ActionResponse, error)
@@ -89,6 +90,10 @@ func (v *iamuser) Create(params map[string]interface{}) (IamUser, error) {
 func (v *iamuser) Update(username string, params map[string]interface{}) (ActionResponse, error) {
 	return v.client.PerformUpdate("iam/user/"+username, params)
 }
+func (v *iamuser) UpdateEmail(username string, email string) (ActionResponse, error) {
+	return v.client.PerformUpdate("iam/user/"+username+"/email", map[string]interface{}{"email": email})
+}
+
 func (v *iamuser) SetPassword(username string, params map[string]interface{}) (ActionResponse, error) {
 	return v.client.PerformUpdate("iam/user/"+username, params)
 }
@@ -103,9 +108,9 @@ func (v *iamuser) Delete(username string) (ActionResponse, error) {
 }
 
 func (v *iamuser) Enable(username string) (ActionResponse, error) {
-	return v.client.PerformUpdate("iam/user/"+username+"/set_user_status", map[string]interface{}{"enabled": true})
+	return v.client.PerformAction("iam/user/"+username+"/set_user_status", map[string]interface{}{"enabled": true})
 }
 
 func (v *iamuser) Disable(username string) (ActionResponse, error) {
-	return v.client.PerformUpdate("iam/user/"+username+"/set_user_status", map[string]interface{}{"enabled": false})
+	return v.client.PerformAction("iam/user/"+username+"/set_user_status", map[string]interface{}{"enabled": false})
 }
