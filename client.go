@@ -29,57 +29,60 @@ type ClientConfigs struct {
 
 // Client represents CMC Cloud API client.
 type Client struct {
-	Configs                  ClientConfigs
-	Account                  AccountService
-	Image                    ImageService
-	Flavor                   FlavorService
-	Server                   ServerService
-	EcsGroup                 EcsGroupService
-	Volume                   VolumeService
-	VolumeType               VolumeTypeService
-	NetworkInterface         NetworkInterfaceService
-	VolumeAutoBackup         VolumeAutoBackupService
-	VPC                      VPCService
-	IamUser                  IamUserService
-	IamGroup                 IamGroupService
-	IamProject               IamProjectService
-	IamRole                  IamRoleService
-	IamCustomRole            IamCustomRoleService
-	Subnet                   SubnetService
-	EIP                      EIPService
-	ELB                      ELBService
-	EFS                      EFSService
-	VA                       VAService
-	Waf                      WafService
-	WafIP                    WafIPService
-	WafRule                  WafRuleService
-	WafCert                  WafCertService
-	Dns                      DnsZoneService
-	DnsRecord                DnsRecordService
-	DnsAcl                   DnsAclService
-	CDN                      CDNService
-	CDNCert                  CDNCertService
-	WafWhitelist             WafWhitelistService
-	Certificate              CertificateService
-	DatabaseInstance         DatabaseInstanceService
-	DatabaseBackup           DatabaseBackupService
-	DatabaseAutoBackup       DatabaseAutoBackupService
-	ContainerRegistry        ContainerRegistryService
-	DevopsProject            DevopsProjectService
-	RedisConfiguration       RedisConfigurationService
-	RedisInstance            RedisInstanceService
-	Kubernetes               KubernetesService
-	Kubernetesv2             Kubernetesv2Service
-	DatabaseConfiguration    DatabaseConfigurationService
-	SecurityGroup            SecurityGroupService
-	Keypair                  KeypairService
-	KeyManagement            KeyManagementService
-	Snapshot                 SnapshotService
-	Backup                   BackupService
-	AutoScalingConfiguration AutoScalingConfigurationService
-	AutoScalingGroup         AutoScalingGroupService
-	AutoScalingPolicy        AutoScalingPolicyService
-	BillingMode              BillingModeService
+	Configs                    ClientConfigs
+	Account                    AccountService
+	Image                      ImageService
+	Flavor                     FlavorService
+	Server                     ServerService
+	EcsGroup                   EcsGroupService
+	Volume                     VolumeService
+	VolumeType                 VolumeTypeService
+	NetworkInterface           NetworkInterfaceService
+	VolumeAutoBackup           VolumeAutoBackupService
+	VPC                        VPCService
+	IamUser                    IamUserService
+	IamGroup                   IamGroupService
+	IamProject                 IamProjectService
+	IamRole                    IamRoleService
+	IamCustomRole              IamCustomRoleService
+	Subnet                     SubnetService
+	EIP                        EIPService
+	ELB                        ELBService
+	EFS                        EFSService
+	VA                         VAService
+	Waf                        WafService
+	WafIP                      WafIPService
+	WafRule                    WafRuleService
+	WafCert                    WafCertService
+	Dns                        DnsZoneService
+	DnsRecord                  DnsRecordService
+	DnsAcl                     DnsAclService
+	CDN                        CDNService
+	CDNCert                    CDNCertService
+	WafWhitelist               WafWhitelistService
+	Certificate                CertificateService
+	DatabaseInstance           DatabaseInstanceService
+	DatabaseBackup             DatabaseBackupService
+	DatabaseAutoBackup         DatabaseAutoBackupService
+	ContainerRegistry          ContainerRegistryService
+	DevopsProject              DevopsProjectService
+	RedisConfiguration         RedisConfigurationService
+	RedisInstance              RedisInstanceService
+	Kubernetes                 KubernetesService
+	Kubernetesv2               Kubernetesv2Service
+	DatabaseConfiguration      DatabaseConfigurationService
+	SecurityGroup              SecurityGroupService
+	Keypair                    KeypairService
+	KeyManagement              KeyManagementService
+	Snapshot                   SnapshotService
+	Backup                     BackupService
+	AutoScalingConfiguration   AutoScalingConfigurationService
+	AutoScalingV2Configuration AutoScalingV2ConfigurationService
+	AutoScalingGroup           AutoScalingGroupService
+	AutoScalingV2Group         AutoScalingV2GroupService
+	AutoScalingV2ScaleTrigger  AutoScalingV2ScaleTriggerService
+	AutoScalingPolicy          AutoScalingPolicyService
+	BillingMode                BillingModeService
 }
 
 // APIError is return when there are an error when call api
@@ -154,6 +157,9 @@ func NewClient(configs ClientConfigs) (*Client, error) {
 	c.Backup = &backup{client: c}
 	c.AutoScalingConfiguration = &asconfiguration{client: c}
 	c.AutoScalingGroup = &autoscalinggroup{client: c}
+	c.AutoScalingV2Configuration = &asv2configuration{client: c}
+	c.AutoScalingV2Group = &autoscalingv2group{client: c}
+	c.AutoScalingV2ScaleTrigger = &asv2scaletrigger{client: c}
 	c.AutoScalingPolicy = &autoscalingpolicy{client: c}
 	c.BillingMode = &billingmode{client: c}
 
