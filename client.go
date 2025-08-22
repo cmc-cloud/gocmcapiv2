@@ -215,7 +215,7 @@ func (c *Client) parseResponse(response *resty.Response, err error) (string, err
 			if strings.Contains(requestURL, "cloudops-core") && apiError.Error.ErrorCode == 500 && strings.Contains(apiError.Error.ErrorText, "not found") {
 				return restext, fmt.Errorf("%s: %w", apiError.Error.ErrorText, ErrNotFound)
 			}
-			return restext, fmt.Errorf("Error %d: %s", apiError.Error.ErrorCode, apiError.Error.ErrorText)
+			return restext, fmt.Errorf("error %d: %s", apiError.Error.ErrorCode, apiError.Error.ErrorText)
 		}
 	}
 
@@ -226,7 +226,7 @@ func (c *Client) parseResponse(response *resty.Response, err error) (string, err
 			return "", err
 		}
 
-		// return restext, fmt.Errorf("Error %d: %s", apiError.Error.ErrorCode, apiError.Error.ErrorText)
+		// return restext, fmt.Errorf("error %d: %s", apiError.Error.ErrorCode, apiError.Error.ErrorText)
 		if apiError.ErrorCode == 0 {
 			apiError.ErrorCode = response.StatusCode()
 		}
@@ -235,7 +235,7 @@ func (c *Client) parseResponse(response *resty.Response, err error) (string, err
 		if code == http.StatusNotFound {
 			return restext, fmt.Errorf("%s: %w", apiError.ErrorText, ErrNotFound)
 		}
-		return restext, fmt.Errorf("Error %d: %s", apiError.ErrorCode, apiError.ErrorText)
+		return restext, fmt.Errorf("error %d: %s", apiError.ErrorCode, apiError.ErrorText)
 	}
 
 	if strings.Contains(restext, "error_code") && strings.Contains(restext, "error_text") {
@@ -246,7 +246,7 @@ func (c *Client) parseResponse(response *resty.Response, err error) (string, err
 			return "", err
 		}
 
-		// return restext, fmt.Errorf("Error %d: %s", apiError.Error.ErrorCode, apiError.Error.ErrorText)
+		// return restext, fmt.Errorf("error %d: %s", apiError.Error.ErrorCode, apiError.Error.ErrorText)
 		if apiError.Error.ErrorCode == 0 {
 			apiError.Error.ErrorCode = response.StatusCode()
 		}
@@ -255,7 +255,7 @@ func (c *Client) parseResponse(response *resty.Response, err error) (string, err
 		if code == http.StatusNotFound {
 			return restext, fmt.Errorf("%s: %w", apiError.Error.ErrorText, ErrNotFound)
 		}
-		return restext, fmt.Errorf("Error %d: %s", apiError.Error.ErrorCode, apiError.Error.ErrorText)
+		return restext, fmt.Errorf("error %d: %s", apiError.Error.ErrorCode, apiError.Error.ErrorText)
 	}
 
 	// security api
