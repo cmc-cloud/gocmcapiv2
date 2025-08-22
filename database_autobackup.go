@@ -47,6 +47,9 @@ func (v *databaseautobackup) Get(id string) (DatabaseAutoBackup, error) {
 func (s *databaseautobackup) List(params map[string]string) ([]DatabaseAutoBackup, error) {
 	restext, err := s.client.Get("dbaas/auto-backup", params)
 	items := make([]DatabaseAutoBackup, 0)
+	if err != nil {
+		return items, err
+	}
 	err = json.Unmarshal([]byte(restext), &items)
 	return items, err
 }

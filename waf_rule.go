@@ -72,6 +72,9 @@ func (v *wafrule) Create(params map[string]interface{}) (WafRule, error) {
 	if err != nil {
 		return response, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	if err != nil {
+		return response, err
+	}
 	return response, nil
 }

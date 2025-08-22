@@ -50,6 +50,9 @@ func (v *efs) Get(id string) (EFS, error) {
 func (s *efs) List(params map[string]string) ([]EFS, error) {
 	restext, err := s.client.Get("efs", params)
 	items := make([]EFS, 0)
+	if err != nil {
+		return items, err
+	}
 	err = json.Unmarshal([]byte(restext), &items)
 	return items, err
 }

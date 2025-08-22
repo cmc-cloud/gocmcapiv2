@@ -47,6 +47,9 @@ func (v *snapshot) Get(id string) (Snapshot, error) {
 func (s *snapshot) List(params map[string]string) ([]Snapshot, error) {
 	restext, err := s.client.Get("snapshot", params)
 	items := make([]Snapshot, 0)
+	if err != nil {
+		return items, err
+	}
 	err = json.Unmarshal([]byte(restext), &items)
 	return items, err
 }

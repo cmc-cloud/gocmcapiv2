@@ -13,11 +13,11 @@ import (
 
 var (
 	// ErrNotFound for resource not found status
-	ErrNotFound = errors.New("Resource not found")
+	ErrNotFound = errors.New("resource not found")
 	// ErrPermissionDenied for permission denied
-	ErrPermissionDenied = errors.New("You are not allowed to do this action")
+	ErrPermissionDenied = errors.New("you are not allowed to do this action")
 	// ErrCommon for common error
-	ErrCommon = errors.New("Error")
+	ErrCommon = errors.New("error")
 )
 
 type ClientConfigs struct {
@@ -62,7 +62,6 @@ type Client struct {
 	WafWhitelist               WafWhitelistService
 	Certificate                CertificateService
 	DatabaseInstance           DatabaseInstanceService
-	DatabaseBackup             DatabaseBackupService
 	DatabaseAutoBackup         DatabaseAutoBackupService
 	ContainerRegistry          ContainerRegistryService
 	DevopsProject              DevopsProjectService
@@ -83,6 +82,7 @@ type Client struct {
 	AutoScalingV2ScaleTrigger  AutoScalingV2ScaleTriggerService
 	AutoScalingPolicy          AutoScalingPolicyService
 	BillingMode                BillingModeService
+	DatabaseBackup             DatabaseBackupService
 }
 
 // APIError is return when there are an error when call api
@@ -148,6 +148,7 @@ func NewClient(configs ClientConfigs) (*Client, error) {
 	c.RedisConfiguration = &redisconfiguration{client: c}
 	c.RedisInstance = &redisinstance{client: c}
 	c.DatabaseInstance = &databaseinstance{client: c}
+	c.DatabaseBackup = &databasebackup{client: c}
 	c.DatabaseAutoBackup = &databaseautobackup{client: c}
 	c.DatabaseConfiguration = &databaseconfiguration{client: c}
 	c.SecurityGroup = &securitygroup{client: c}
@@ -220,7 +221,11 @@ func (c *Client) parseResponse(response *resty.Response, err error) (string, err
 
 	if strings.Contains(restext, "code") && strings.Contains(restext, "message") {
 		var apiError DevOpsError
-		json.Unmarshal([]byte(restext), &apiError)
+		err := json.Unmarshal([]byte(restext), &apiError)
+		if err != nil {
+			return "", err
+		}
+
 		// return restext, fmt.Errorf("Error %d: %s", apiError.Error.ErrorCode, apiError.Error.ErrorText)
 		if apiError.ErrorCode == 0 {
 			apiError.ErrorCode = response.StatusCode()
@@ -235,7 +240,12 @@ func (c *Client) parseResponse(response *resty.Response, err error) (string, err
 
 	if strings.Contains(restext, "error_code") && strings.Contains(restext, "error_text") {
 		var apiError APIError
-		json.Unmarshal([]byte(restext), &apiError)
+
+		err := json.Unmarshal([]byte(restext), &apiError)
+		if err != nil {
+			return "", err
+		}
+
 		// return restext, fmt.Errorf("Error %d: %s", apiError.Error.ErrorCode, apiError.Error.ErrorText)
 		if apiError.Error.ErrorCode == 0 {
 			apiError.Error.ErrorCode = response.StatusCode()
@@ -262,7 +272,7 @@ func (c *Client) parseResponse(response *resty.Response, err error) (string, err
 				if code == http.StatusNotFound {
 					return restext, fmt.Errorf("%s: %w", apiError.ErrorText, ErrNotFound)
 				}
-				return restext, fmt.Errorf("Error %d: %s", apiError.ErrorCode, apiError.ErrorText)
+				return restext, fmt.Errorf("error %d: %s", apiError.ErrorCode, apiError.ErrorText)
 			}
 		}
 	}
@@ -273,7 +283,7 @@ func (c *Client) parseResponse(response *resty.Response, err error) (string, err
 		var apiError DnsAPIError
 		err := json.Unmarshal([]byte(restext), &apiError)
 		if err == nil {
-			return restext, fmt.Errorf("Erro: %s", apiError.ErrorText)
+			return restext, fmt.Errorf("error: %s", apiError.ErrorText)
 		}
 	}
 
@@ -283,10 +293,10 @@ func (c *Client) parseResponse(response *resty.Response, err error) (string, err
 		var apiError CDNAPIError
 		err := json.Unmarshal([]byte(restext), &apiError)
 		if err == nil {
-			return restext, fmt.Errorf("Erro: %s", err)
+			return restext, fmt.Errorf("error: %s", err)
 		}
 		if apiError.ErrorCode >= 300 {
-			return restext, fmt.Errorf("Erro: %s", apiError.ErrorText)
+			return restext, fmt.Errorf("error: %s", apiError.ErrorText)
 		}
 	}
 	return restext, err
@@ -344,7 +354,10 @@ type ActionResponse struct {
 func (c *Client) PerformDeleteWithBody(path string, params map[string]interface{}) (ActionResponse, error) {
 	jsonStr, err := c.Delete(path, params)
 	var res ActionResponse
-	json.Unmarshal([]byte(jsonStr), &res)
+	if err != nil {
+		return res, err
+	}
+	err = json.Unmarshal([]byte(jsonStr), &res)
 	if err != nil {
 		return res, err
 	}
@@ -353,7 +366,10 @@ func (c *Client) PerformDeleteWithBody(path string, params map[string]interface{
 func (c *Client) PerformDelete(path string) (ActionResponse, error) {
 	jsonStr, err := c.Delete(path, map[string]interface{}{})
 	var res ActionResponse
-	json.Unmarshal([]byte(jsonStr), &res)
+	if err != nil {
+		return res, err
+	}
+	err = json.Unmarshal([]byte(jsonStr), &res)
 	if err != nil {
 		return res, err
 	}
@@ -363,7 +379,10 @@ func (c *Client) PerformDelete(path string) (ActionResponse, error) {
 func (c *Client) PerformAction(path string, params map[string]interface{}) (ActionResponse, error) {
 	jsonStr, err := c.Post(path, params)
 	var res ActionResponse
-	json.Unmarshal([]byte(jsonStr), &res)
+	if err != nil {
+		return res, err
+	}
+	err = json.Unmarshal([]byte(jsonStr), &res)
 	if err != nil {
 		return res, err
 	}
@@ -373,7 +392,10 @@ func (c *Client) PerformAction(path string, params map[string]interface{}) (Acti
 func (c *Client) PerformUpdate(path string, params map[string]interface{}) (ActionResponse, error) {
 	jsonStr, err := c.Put(path, params)
 	var res ActionResponse
-	json.Unmarshal([]byte(jsonStr), &res)
+	if err != nil {
+		return res, err
+	}
+	err = json.Unmarshal([]byte(jsonStr), &res)
 	if err != nil {
 		return res, err
 	}
@@ -383,7 +405,10 @@ func (c *Client) PerformUpdate(path string, params map[string]interface{}) (Acti
 func (c *Client) PerformPatch(path string, params map[string]interface{}) (ActionResponse, error) {
 	jsonStr, err := c.Patch(path, params)
 	var res ActionResponse
-	json.Unmarshal([]byte(jsonStr), &res)
+	if err != nil {
+		return res, err
+	}
+	err = json.Unmarshal([]byte(jsonStr), &res)
 	if err != nil {
 		return res, err
 	}

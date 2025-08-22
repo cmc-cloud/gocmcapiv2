@@ -40,6 +40,9 @@ func (v *iamcustomrole) Get(id string) (IamCustomRole, error) {
 func (v *iamcustomrole) List(params map[string]string) ([]IamCustomRole, error) {
 	restext, err := v.client.Get("iam/customrole", params)
 	items := make([]IamCustomRole, 0)
+	if err != nil {
+		return items, err
+	}
 	err = json.Unmarshal([]byte(restext), &items)
 	return items, err
 }

@@ -50,6 +50,9 @@ func (v *databasebackup) Get(id string) (DatabaseBackup, error) {
 func (s *databasebackup) List(params map[string]string) ([]DatabaseBackup, error) {
 	restext, err := s.client.Get("dbaas/backup", params)
 	items := make([]DatabaseBackup, 0)
+	if err != nil {
+		return items, err
+	}
 	err = json.Unmarshal([]byte(restext), &items)
 	return items, err
 }
@@ -60,18 +63,6 @@ func (v *databasebackup) Delete(id string) (ActionResponse, error) {
 }
 func (v *databasebackup) Update(id string, params map[string]interface{}) (ActionResponse, error) {
 	return v.client.PerformUpdate("dbaas/instance/"+id, params)
-}
-func (v *databasebackup) Resize(id string, flavor_id string) (ActionResponse, error) {
-	return v.client.PerformAction("dbaas/instance/"+id+"/resize", map[string]interface{}{"flavor_id": flavor_id})
-}
-func (v *databasebackup) ResizeVolume(id string, volume_size int) (ActionResponse, error) {
-	return v.client.PerformAction("dbaas/instance/"+id+"/resize_volume", map[string]interface{}{"size": volume_size})
-}
-func (v *databasebackup) UpdateInstanceAccessbility(id string, params map[string]interface{}) (ActionResponse, error) {
-	return v.client.PerformUpdate("dbaas/instance/"+id+"/accessbility", params)
-}
-func (v *databasebackup) UpgradeDatastoreVersion(id string, datastore_version string) (ActionResponse, error) {
-	return v.client.PerformUpdate("dbaas/instance/"+id+"/upgrade_datastore_version", map[string]interface{}{"datastore_version": datastore_version})
 }
 
 func (s *databasebackup) Create(params map[string]interface{}) (DatabaseBackup, error) {

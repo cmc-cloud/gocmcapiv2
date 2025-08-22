@@ -69,12 +69,18 @@ func (v *iamuser) Get(id string) (IamUser, error) {
 func (v *iamuser) GetServerPermission(username string) ([]UserServerPermission, error) {
 	restext, err := v.client.Get("iam/user/"+username+"/server_permissions", map[string]string{})
 	items := make([]UserServerPermission, 0)
+	if err != nil {
+		return items, err
+	}
 	err = json.Unmarshal([]byte(restext), &items)
 	return items, err
 }
 func (v *iamuser) List(params map[string]string) ([]IamUser, error) {
 	restext, err := v.client.Get("iam/user", params)
 	items := make([]IamUser, 0)
+	if err != nil {
+		return items, err
+	}
 	err = json.Unmarshal([]byte(restext), &items)
 	return items, err
 }

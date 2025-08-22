@@ -36,8 +36,10 @@ func (v *certificate) Get(name string) (Certificate, error) {
 
 func (s *certificate) List(params map[string]string) ([]Certificate, error) {
 	restext, err := s.client.Get("certificate", params)
-
 	certificates := make([]Certificate, 0)
+	if err != nil {
+		return certificates, err
+	}
 	err = json.Unmarshal([]byte(restext), &certificates)
 	return certificates, err
 }

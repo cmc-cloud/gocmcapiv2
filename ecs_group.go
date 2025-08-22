@@ -34,6 +34,9 @@ func (v *ecsgroup) Get(id string) (EcsGroup, error) {
 func (s *ecsgroup) List(params map[string]string) ([]EcsGroup, error) {
 	restext, err := s.client.Get("server/ecs-group", params)
 	items := make([]EcsGroup, 0)
+	if err != nil {
+		return items, err
+	}
 	err = json.Unmarshal([]byte(restext), &items)
 	return items, err
 }

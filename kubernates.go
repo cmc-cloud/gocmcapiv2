@@ -103,12 +103,18 @@ func (v *kubernetes) Get(id string) (Kubernetes, error) {
 func (s *kubernetes) List(params map[string]string) ([]Kubernetes, error) {
 	restext, err := s.client.Get("kubernetes/cluster", params)
 	items := make([]Kubernetes, 0)
+	if err != nil {
+		return items, err
+	}
 	err = json.Unmarshal([]byte(restext), &items)
 	return items, err
 }
 func (s *kubernetes) GetNodeGroups(id string, show_nodes bool) ([]KubernetesNodeGroup, error) {
 	restext, err := s.client.Get("kubernetes/cluster/"+id+"/nodegroup?show_nodes=false", map[string]string{"show_nodes": strconv.FormatBool(show_nodes)})
 	items := make([]KubernetesNodeGroup, 0)
+	if err != nil {
+		return items, err
+	}
 	err = json.Unmarshal([]byte(restext), &items)
 	return items, err
 }

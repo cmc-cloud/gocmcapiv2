@@ -27,6 +27,27 @@ type RedisInstanceService interface {
 	CreateSnapshot(id string, params map[string]interface{}) (RedisSnapshot, error)
 }
 
+type RedisSnapshot struct {
+	ID         string  `json:"id"`
+	Name       string  `json:"name"`
+	InstanceID string  `json:"instance_id"`
+	Created    string  `json:"created"`
+	Size       float64 `json:"size"`
+	Status     string  `json:"status"`
+	RealSize   int     `json:"real_size"`
+}
+type RedisBackup struct {
+	ID         string  `json:"id"`
+	Name       string  `json:"name"`
+	InstanceID string  `json:"instance_id"`
+	ParentID   string  `json:"parent_id"`
+	Created    string  `json:"created"`
+	Size       float64 `json:"size"`
+	Status     string  `json:"status"`
+	RealSize   int     `json:"real_size"`
+	RealSizeGB float64 `json:"real_size_gb"`
+}
+
 type RedisInstanceWrapper struct {
 	Data RedisInstance `json:"data"`
 }

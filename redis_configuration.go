@@ -75,7 +75,7 @@ func (v *redisconfiguration) Get(id string) (RedisConfiguration, error) {
 	if err != nil {
 		return nilres, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
+	err = json.Unmarshal([]byte(jsonStr), &response)
 	if err != nil {
 		return nilres, err
 	}
@@ -89,7 +89,7 @@ func (v *redisconfiguration) GetDefaultConfiguration(id string) (RedisConfigurat
 	if err != nil {
 		return nilres, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
+	err = json.Unmarshal([]byte(jsonStr), &response)
 	if err != nil {
 		return nilres, err
 	}
@@ -102,7 +102,7 @@ func (s *redisconfiguration) List(params map[string]string) ([]RedisConfiguratio
 	if err != nil {
 		return nilres, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
+	err = json.Unmarshal([]byte(jsonStr), &response)
 	if err != nil {
 		return nilres, err
 	}

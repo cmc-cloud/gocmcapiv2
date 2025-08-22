@@ -59,6 +59,9 @@ func (v *volume) Get(id string) (Volume, error) {
 func (s *volume) List(params map[string]string) ([]Volume, error) {
 	restext, err := s.client.Get("volume", params)
 	items := make([]Volume, 0)
+	if err != nil {
+		return items, err
+	}
 	err = json.Unmarshal([]byte(restext), &items)
 	return items, err
 }

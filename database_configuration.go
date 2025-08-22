@@ -70,6 +70,9 @@ func (v *databaseconfiguration) Get(id string) (DatabaseConfiguration, error) {
 func (s *databaseconfiguration) List(params map[string]string) ([]DatabaseConfiguration, error) {
 	restext, err := s.client.Get("dbaas/configuration", params)
 	items := make([]DatabaseConfiguration, 0)
+	if err != nil {
+		return items, err
+	}
 	err = json.Unmarshal([]byte(restext), &items)
 	return items, err
 }

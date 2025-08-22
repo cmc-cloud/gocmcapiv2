@@ -57,6 +57,9 @@ func (v *securitygroup) Get(id string) (SecurityGroup, error) {
 func (s *securitygroup) List(params map[string]string) ([]SecurityGroup, error) {
 	restext, err := s.client.Get("network/securitygroup", params)
 	items := make([]SecurityGroup, 0)
+	if err != nil {
+		return items, err
+	}
 	err = json.Unmarshal([]byte(restext), &items)
 	return items, err
 }

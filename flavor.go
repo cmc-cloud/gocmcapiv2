@@ -43,8 +43,10 @@ func (v *flavor) Get(id string) (Flavor, error) {
 // List lists all flavors. []*Flavor
 func (s *flavor) List(params map[string]string) ([]Flavor, error) {
 	restext, err := s.client.Get("server/flavors", params)
-
 	flavors := make([]Flavor, 0)
+	if err != nil {
+		return flavors, err
+	}
 	err = json.Unmarshal([]byte(restext), &flavors)
 	return flavors, err
 }

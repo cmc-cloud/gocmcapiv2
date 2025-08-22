@@ -73,6 +73,9 @@ func (s *autoscalingv2group) Get(id string) (AutoScalingV2Group, error) {
 func (s *autoscalingv2group) List(params map[string]string) ([]AutoScalingV2Group, error) {
 	restext, err := s.client.Get("asv2/group", params)
 	items := make([]AutoScalingV2Group, 0)
+	if err != nil {
+		return items, err
+	}
 	err = json.Unmarshal([]byte(restext), &items)
 	return items, err
 }

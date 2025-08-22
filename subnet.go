@@ -53,6 +53,9 @@ func (v *subnet) Get(id string) (Subnet, error) {
 func (s *subnet) List(params map[string]string) ([]Subnet, error) {
 	restext, err := s.client.Get("network/subnet", params)
 	items := make([]Subnet, 0)
+	if err != nil {
+		return items, err
+	}
 	err = json.Unmarshal([]byte(restext), &items)
 	return items, err
 }

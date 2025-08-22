@@ -65,7 +65,13 @@ func (s *autoscalinggroup) Get(id string) (AutoScalingGroup, error) {
 func (s *autoscalinggroup) List(params map[string]string) ([]AutoScalingGroup, error) {
 	restext, err := s.client.Get("as/group", params)
 	items := make([]AutoScalingGroup, 0)
+	if err != nil {
+		return items, err
+	}
 	err = json.Unmarshal([]byte(restext), &items)
+	if err != nil {
+		return items, err
+	}
 	return items, err
 }
 

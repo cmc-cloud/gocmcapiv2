@@ -63,6 +63,9 @@ func (v *databaseinstance) Get(id string) (DatabaseInstance, error) {
 func (s *databaseinstance) List(params map[string]string) ([]DatabaseInstance, error) {
 	restext, err := s.client.Get("dbaas/instance", params)
 	items := make([]DatabaseInstance, 0)
+	if err != nil {
+		return items, err
+	}
 	err = json.Unmarshal([]byte(restext), &items)
 	return items, err
 }

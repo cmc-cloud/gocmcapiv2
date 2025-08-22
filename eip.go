@@ -76,6 +76,9 @@ func (v *eip) Get(id string) (EIP, error) {
 func (s *eip) List(params map[string]string) ([]EIP, error) {
 	restext, err := s.client.Get("network/eip", params)
 	items := make([]EIP, 0)
+	if err != nil {
+		return items, err
+	}
 	err = json.Unmarshal([]byte(restext), &items)
 	return items, err
 }

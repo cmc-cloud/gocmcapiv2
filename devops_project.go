@@ -55,7 +55,7 @@ func (s *devopsproject) List(params map[string]string) ([]DevopsProject, error) 
 	if err != nil {
 		return nilres, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
+	err = json.Unmarshal([]byte(jsonStr), &response)
 	if err != nil {
 		return nilres, err
 	}

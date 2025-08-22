@@ -55,6 +55,9 @@ func (s *asv2configuration) Get(id string) (AutoScalingV2Configuration, error) {
 func (s *asv2configuration) List(params map[string]string) ([]AutoScalingV2Configuration, error) {
 	restext, err := s.client.Get("asv2/configuration", params)
 	items := make([]AutoScalingV2Configuration, 0)
+	if err != nil {
+		return items, err
+	}
 	err = json.Unmarshal([]byte(restext), &items)
 	return items, err
 }

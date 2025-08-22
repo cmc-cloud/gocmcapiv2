@@ -47,6 +47,9 @@ func (v *backup) Get(id string) (Backup, error) {
 func (s *backup) List(params map[string]string) ([]Backup, error) {
 	restext, err := s.client.Get("backup", params)
 	items := make([]Backup, 0)
+	if err != nil {
+		return items, err
+	}
 	err = json.Unmarshal([]byte(restext), &items)
 	return items, err
 }

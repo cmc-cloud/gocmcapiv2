@@ -48,6 +48,9 @@ func (s *asv2scaletrigger) Get(group_id string, id string) (AutoScalingV2ScaleTr
 func (s *asv2scaletrigger) List(group_id string, params map[string]string) ([]AutoScalingV2ScaleTrigger, error) {
 	restext, err := s.client.Get("asv2/group/"+group_id+"/trigger", params)
 	items := make([]AutoScalingV2ScaleTrigger, 0)
+	if err != nil {
+		return items, err
+	}
 	err = json.Unmarshal([]byte(restext), &items)
 	return items, err
 }

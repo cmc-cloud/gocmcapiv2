@@ -37,8 +37,10 @@ func (v *keypair) Get(name string) (Keypair, error) {
 
 func (s *keypair) List(params map[string]string) ([]Keypair, error) {
 	restext, err := s.client.Get("keypair", params)
-
 	keypairs := make([]Keypair, 0)
+	if err != nil {
+		return keypairs, err
+	}
 	err = json.Unmarshal([]byte(restext), &keypairs)
 	return keypairs, err
 }

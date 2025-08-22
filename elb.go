@@ -267,6 +267,9 @@ func (v *elb) GetPoolMember(id string, member_id string) (ELBPoolMember, error) 
 func (s *elb) List(params map[string]string) ([]ELB, error) {
 	restext, err := s.client.Get("lbaas", params)
 	items := make([]ELB, 0)
+	if err != nil {
+		return items, err
+	}
 	err = json.Unmarshal([]byte(restext), &items)
 	return items, err
 }
@@ -370,8 +373,10 @@ func (v *elb) GetFlavor(id string) (ELBFlavor, error) {
 // List lists all flavors. []*Flavor
 func (s *elb) ListFlavors() ([]ELBFlavor, error) {
 	restext, err := s.client.Get("lbaas/flavor", map[string]string{})
-
 	flavors := make([]ELBFlavor, 0)
+	if err != nil {
+		return flavors, err
+	}
 	err = json.Unmarshal([]byte(restext), &flavors)
 	return flavors, err
 }

@@ -67,6 +67,9 @@ func (s *asconfiguration) Get(id string) (AutoScalingConfiguration, error) {
 	var obj AutoScalingConfiguration
 	if err == nil {
 		err = json.Unmarshal([]byte(jsonStr), &obj)
+		if err != nil {
+			return obj, err
+		}
 	}
 	return obj, err
 }
@@ -74,6 +77,9 @@ func (s *asconfiguration) Get(id string) (AutoScalingConfiguration, error) {
 func (s *asconfiguration) List(params map[string]string) ([]AutoScalingConfiguration, error) {
 	restext, err := s.client.Get("as/configuration", params)
 	items := make([]AutoScalingConfiguration, 0)
+	if err != nil {
+		return items, err
+	}
 	err = json.Unmarshal([]byte(restext), &items)
 	return items, err
 }

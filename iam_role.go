@@ -35,6 +35,9 @@ func (v *iamrole) Get(id string) (IamRole, error) {
 func (s *iamrole) List(params map[string]string) ([]IamRole, error) {
 	restext, err := s.client.Get("iam/role", params)
 	items := make([]IamRole, 0)
+	if err != nil {
+		return items, err
+	}
 	err = json.Unmarshal([]byte(restext), &items)
 	return items, err
 }

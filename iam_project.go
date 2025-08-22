@@ -38,6 +38,9 @@ func (v *iamproject) Get(id string) (IamProject, error) {
 func (v *iamproject) List(params map[string]string) ([]IamProject, error) {
 	restext, err := v.client.Get("iam/project", params)
 	items := make([]IamProject, 0)
+	if err != nil {
+		return items, err
+	}
 	err = json.Unmarshal([]byte(restext), &items)
 	return items, err
 }

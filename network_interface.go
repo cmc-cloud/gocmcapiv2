@@ -40,6 +40,9 @@ func (v *networkinterface) Get(id string) (NetworkInterface, error) {
 func (s *networkinterface) List(params map[string]string) ([]NetworkInterface, error) {
 	restext, err := s.client.Get("network/port", params)
 	items := make([]NetworkInterface, 0)
+	if err != nil {
+		return items, err
+	}
 	err = json.Unmarshal([]byte(restext), &items)
 	return items, err
 }
@@ -50,7 +53,10 @@ func (s *networkinterface) Create(server_id string, params map[string]interface{
 	if err != nil {
 		return response, err
 	}
-	json.Unmarshal([]byte(jsonStr), &response)
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	if err != nil {
+		return response, err
+	}
 	return response, nil
 }
 

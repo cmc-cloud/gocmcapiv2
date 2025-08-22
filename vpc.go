@@ -42,6 +42,9 @@ func (v *vpc) Get(id string) (VPC, error) {
 func (s *vpc) List(params map[string]string) ([]VPC, error) {
 	restext, err := s.client.Get("network/vpc", params)
 	items := make([]VPC, 0)
+	if err != nil {
+		return items, err
+	}
 	err = json.Unmarshal([]byte(restext), &items)
 	return items, err
 }

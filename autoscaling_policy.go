@@ -113,6 +113,9 @@ type autoscalingpolicy struct {
 func (s *autoscalingpolicy) PerformAttachDetachAction(path string, params map[string]interface{}) (PolicyActionResponse, error) {
 	jsonStr, err := s.client.Post(path, params)
 	var res PolicyActionResponse
+	if err != nil {
+		return res, err
+	}
 	err = json.Unmarshal([]byte(jsonStr), &res)
 	if err != nil {
 		return res, err
@@ -186,9 +189,15 @@ func (s *autoscalingpolicy) Get(id string) (AutoScalingPolicy, error) {
 }
 
 func (s *autoscalingpolicy) List(params map[string]string) ([]AutoScalingPolicy, error) {
-	restext, err := s.client.Get("as/policy", params)
 	items := make([]AutoScalingPolicy, 0)
+	restext, err := s.client.Get("as/policy", params)
+	if err != nil {
+		return items, err
+	}
 	err = json.Unmarshal([]byte(restext), &items)
+	if err != nil {
+		return nil, err
+	}
 	return items, err
 }
 

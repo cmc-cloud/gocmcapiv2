@@ -29,7 +29,8 @@ func Logo(pre string, object interface{}) {
 		if err != nil {
 			log.Println(err)
 		}
-		defer f.Close()
+		// defer f.Close()
+		defer func() { _ = f.Close() }()
 
 		logger := log.New(f, "", log.LstdFlags)
 		// logger.Println(object)
@@ -58,7 +59,8 @@ func Logs(message string) {
 		if err != nil {
 			log.Println(err)
 		}
-		defer f.Close()
+		// defer f.Close()
+		defer func() { _ = f.Close() }()
 
 		logger := log.New(f, "", log.LstdFlags)
 		logger.Println(message)
@@ -71,7 +73,7 @@ func Logall(message string) {
 	if err != nil {
 		log.Println(err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	logger := log.New(f, "", log.LstdFlags)
 	logger.Println(message)

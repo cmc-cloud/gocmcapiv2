@@ -34,6 +34,9 @@ func (v *volumetype) Get(id string) (VolumeType, error) {
 func (s *volumetype) List(params map[string]string) ([]VolumeType, error) {
 	restext, err := s.client.Get("volume/type", params)
 	items := make([]VolumeType, 0)
+	if err != nil {
+		return items, err
+	}
 	err = json.Unmarshal([]byte(restext), &items)
 	return items, err
 }

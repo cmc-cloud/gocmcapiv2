@@ -44,8 +44,10 @@ func (v *image) Get(id string) (Image, error) {
 
 func (s *image) List(params map[string]string) ([]Image, error) {
 	restext, err := s.client.Get("image", params)
-
 	images := make([]Image, 0)
+	if err != nil {
+		return images, err
+	}
 	err = json.Unmarshal([]byte(restext), &images)
 	return images, err
 }

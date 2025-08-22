@@ -115,6 +115,9 @@ func (s *server) Get(id string, more_info bool) (Server, error) {
 func (s *server) List(params map[string]string) ([]Server, error) {
 	restext, err := s.client.Get("server", params)
 	items := make([]Server, 0)
+	if err != nil {
+		return items, err
+	}
 	err = json.Unmarshal([]byte(restext), &items)
 	return items, err
 }
@@ -122,6 +125,9 @@ func (s *server) List(params map[string]string) ([]Server, error) {
 func (s *server) ListInterfaces(id string) ([]NetworkInterface, error) {
 	restext, err := s.client.Get("server/"+id+"/interface", map[string]string{})
 	items := make([]NetworkInterface, 0)
+	if err != nil {
+		return items, err
+	}
 	err = json.Unmarshal([]byte(restext), &items)
 	return items, err
 }

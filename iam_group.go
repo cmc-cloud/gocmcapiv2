@@ -47,6 +47,9 @@ func (v *iamgroup) GetGroupOfProject(project_id string, group_name string) (IamG
 func (v *iamgroup) List(params map[string]string) ([]IamGroup, error) {
 	restext, err := v.client.Get("iam/group", params)
 	items := make([]IamGroup, 0)
+	if err != nil {
+		return items, err
+	}
 	err = json.Unmarshal([]byte(restext), &items)
 	return items, err
 }
