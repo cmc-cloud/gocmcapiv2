@@ -41,6 +41,7 @@ type Volume struct {
 	Tags                []Tag  `json:"tags"`
 	BillingMode         string `json:"billing_mode"`
 	DeleteOnTermination bool   `json:"delete_on_termination"`
+	EncryptionKeyID     string `json:"encryption_key_id"`
 }
 type volume struct {
 	client *Client

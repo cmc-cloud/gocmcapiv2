@@ -46,7 +46,7 @@ type KeyManagementContainerListWrapper struct {
 
 type KeyManagementSecretListWrapper struct {
 	Data struct {
-		Docs      []KeyManagementSecret `json:"docs"`
+		Docs      []KeyManagementSecret `json:"secretRefs"`
 		Page      int                   `json:"page"`
 		Size      int                   `json:"size"`
 		Total     int                   `json:"total"`
@@ -95,6 +95,8 @@ type KeyManagementSecret struct {
 	Name       string `json:"name"`
 	ID         string `json:"secretUuid"`
 	SecretType string `json:"secretType"`
+	// Algorithm  string `json:"algorithm"`
+	// BitLength  string `json:"bitLength"`
 	ExpireTime string `json:"expireTime"`
 	Created    string `json:"created"`
 }
