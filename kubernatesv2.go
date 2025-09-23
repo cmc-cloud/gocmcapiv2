@@ -47,6 +47,7 @@ type Kubernetesv2NodeGroup struct {
 		ClusterID string                      `json:"clusterId"`
 		Status    string                      `json:"status"`
 	} `json:"externalProviders"`
+	NtpServers []NtpServer `json:"ntpServers"`
 	// Nodes []struct {
 	// 	Name              string    `json:"name"`
 	// 	Status            string    `json:"status"`
@@ -55,7 +56,7 @@ type Kubernetesv2NodeGroup struct {
 	// 	CreationTimestamp time.Time `json:"creationTimestamp"`
 	// } `json:"nodes"`
 	// Version                   string                        `json:"version"`
-	// SSHKeyName                string                        `json:"sshKeyName"`
+	// SSHKeyName                string                        `json:"sshKeyName"
 }
 
 type AutoScalev2Metadata struct {
@@ -161,20 +162,27 @@ type Kubernetesv2ListItem struct {
 	Namespace        string `json:"namespace"`
 }
 type Kubernetesv2 struct {
-	ClusterID        string `json:"clusterId"`
-	ClusterName      string `json:"clusterName"`
-	State            string `json:"state"`
-	NumberMasterNode int    `json:"numberMasterNode"`
-	NumberWorkerNode int    `json:"numberWorkerNode"`
-	CreatedAt        string `json:"createdAt"`
-	KubeletVersion   string `json:"kubeletVersion"`
-	VpcID            string `json:"vpcId"`
-	SubnetID         string `json:"subnetId"`
-	CidrBlockPod     string `json:"cidrBlockPod"`
-	ServiceDomain    string `json:"serviceDomain"`
-	SecurityGroupID  string `json:"securityGroupId"`
-	MasterURL        string `json:"masterUrl"`
-	CidrBlockService string `json:"cidrBlockService"`
+	ClusterID        string      `json:"clusterId"`
+	ClusterName      string      `json:"clusterName"`
+	State            string      `json:"state"`
+	NumberMasterNode int         `json:"numberMasterNode"`
+	NumberWorkerNode int         `json:"numberWorkerNode"`
+	CreatedAt        string      `json:"createdAt"`
+	KubeletVersion   string      `json:"kubeletVersion"`
+	VpcID            string      `json:"vpcId"`
+	SubnetID         string      `json:"subnetId"`
+	CidrBlockPod     string      `json:"cidrBlockPod"`
+	ServiceDomain    string      `json:"serviceDomain"`
+	SecurityGroupID  string      `json:"securityGroupId"`
+	MasterURL        string      `json:"masterUrl"`
+	CidrBlockService string      `json:"cidrBlockService"`
+	NodeMaskCidr     int         `json:"nodeMaskCidr"`
+	NtpServers       []NtpServer `json:"ntpServers"`
+}
+type NtpServer struct {
+	Host     string `json:"host"`
+	Port     int    `json:"port"`
+	Protocol string `json:"protocol"`
 }
 type Kubernetesv2Addon struct {
 	Name      string `json:"name"`
