@@ -11,6 +11,7 @@ type SecurityGroupService interface {
 	Delete(id string) (ActionResponse, error)
 	Update(id string, params map[string]interface{}) (ActionResponse, error)
 	SaveRules(id string, rules string) (ActionResponse, error)
+	GetRule(id string) (SecurityGroupRule, error)
 	CreateRule(id string, params map[string]interface{}) (SecurityGroupRule, error)
 	DeleteRule(id string) (ActionResponse, error)
 	Create(params map[string]interface{}) (SecurityGroup, error)
@@ -80,6 +81,15 @@ func (v *securitygroup) SaveRules(id string, rules string) (ActionResponse, erro
 	return v.client.PerformUpdate("network/securitygroup/"+id, map[string]interface{}{"rules": rules})
 }
 
+func (v *securitygroup) GetRule(id string) (SecurityGroupRule, error) {
+	jsonStr, err := v.client.Get("network/securitygroup/rule/"+id, map[string]string{})
+	var response SecurityGroupRule
+	if err != nil {
+		return response, err
+	}
+	err = json.Unmarshal([]byte(jsonStr), &response)
+	return response, err
+}
 func (v *securitygroup) CreateRule(id string, params map[string]interface{}) (SecurityGroupRule, error) {
 	jsonStr, err := v.client.Post("network/securitygroup/"+id+"/rule", params)
 	var response SecurityGroupRule

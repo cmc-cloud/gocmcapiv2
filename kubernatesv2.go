@@ -162,22 +162,23 @@ type Kubernetesv2ListItem struct {
 	Namespace        string `json:"namespace"`
 }
 type Kubernetesv2 struct {
-	ClusterID        string      `json:"clusterId"`
-	ClusterName      string      `json:"clusterName"`
-	State            string      `json:"state"`
-	NumberMasterNode int         `json:"numberMasterNode"`
-	NumberWorkerNode int         `json:"numberWorkerNode"`
-	CreatedAt        string      `json:"createdAt"`
-	KubeletVersion   string      `json:"kubeletVersion"`
-	VpcID            string      `json:"vpcId"`
-	SubnetID         string      `json:"subnetId"`
-	CidrBlockPod     string      `json:"cidrBlockPod"`
-	ServiceDomain    string      `json:"serviceDomain"`
-	SecurityGroupID  string      `json:"securityGroupId"`
-	MasterURL        string      `json:"masterUrl"`
-	CidrBlockService string      `json:"cidrBlockService"`
-	NodeMaskCidr     int         `json:"nodeMaskCidr"`
-	NtpServers       []NtpServer `json:"ntpServers"`
+	ClusterID                string      `json:"clusterId"`
+	ClusterName              string      `json:"clusterName"`
+	State                    string      `json:"state"`
+	NumberMasterNode         int         `json:"numberMasterNode"`
+	NumberWorkerNode         int         `json:"numberWorkerNode"`
+	CreatedAt                string      `json:"createdAt"`
+	KubeletVersion           string      `json:"kubeletVersion"`
+	VpcID                    string      `json:"vpcId"`
+	SubnetID                 string      `json:"subnetId"`
+	CidrBlockPod             string      `json:"cidrBlockPod"`
+	ServiceDomain            string      `json:"serviceDomain"`
+	SecurityGroupID          string      `json:"securityGroupId"`
+	MasterURL                string      `json:"masterUrl"`
+	CidrBlockService         string      `json:"cidrBlockService"`
+	NodeMaskCidr             int         `json:"nodeMaskCidr"`
+	ClusterNetworkDriverMode string      `json:"clusterNetworkDriverMode"`
+	NtpServers               []NtpServer `json:"ntpServers"`
 }
 type NtpServer struct {
 	Host     string `json:"host"`
