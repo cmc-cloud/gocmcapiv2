@@ -16,6 +16,7 @@ type VolumeService interface {
 	Update(id string, params map[string]interface{}) (ActionResponse, error)
 	Attach(id string, params map[string]interface{}) (ActionResponse, error)
 	Detach(id string, server_id string) (ActionResponse, error)
+	Rename(id string, name string) (ActionResponse, error)
 }
 
 // Volume object
@@ -82,6 +83,9 @@ func (v *volume) Attach(id string, params map[string]interface{}) (ActionRespons
 }
 func (v *volume) Detach(id string, server_id string) (ActionResponse, error) {
 	return v.client.PerformAction("volume/"+id+"/detach", map[string]interface{}{"server_id": server_id})
+}
+func (v *volume) Rename(id string, name string) (ActionResponse, error) {
+	return v.client.PerformAction("volume/"+id+"/change_name", map[string]interface{}{"name": name})
 }
 func (s *volume) CreateSnapshot(id string, params map[string]interface{}) (Snapshot, error) {
 	jsonStr, err := s.client.Post("volume/"+id+"/snapshot", params)

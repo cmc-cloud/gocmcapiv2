@@ -10,6 +10,7 @@ type ServerService interface {
 	Get(id string, more_info bool) (Server, error)
 	List(params map[string]string) ([]Server, error)
 	ListInterfaces(id string) ([]NetworkInterface, error)
+	GetVolumeAttachments(id string) ([]VolumeAttachment, error)
 	GetVolumeAttachmentDetail(id string, volume_id string) (VolumeAttachmentDetail, error)
 	Create(params map[string]interface{}) (ServerCreatedResponse, error)
 	Rename(id, newName string) (ActionResponse, error)
@@ -52,6 +53,30 @@ type VolumeAttachmentDetail struct {
 	Device              string `json:"device"`
 	ServerID            string `json:"serverId"`
 	VolumeID            string `json:"volumeId"`
+}
+type VolumeAttachment struct {
+	ID          string `json:"id"`
+	Attachments []struct {
+		AttachmentID string `json:"attachment_id"`
+		Device       string `json:"device"`
+		ServerID     string `json:"server_id"`
+		VolumeID     string `json:"volume_id"`
+	} `json:"attachments"`
+	DeleteOnTermination bool `json:"delete_on_termination"`
+	// Status             string `json:"status"`
+	// Size               int    `json:"size"`
+	// AvailabilityZone   string `json:"availability_zone"`
+	// CreatedAt          string `json:"created_at"`
+	// UpdatedAt          string `json:"updated_at"`
+	// Name               string `json:"name"`
+	// Description        any    `json:"description"`
+	// VolumeType         string `json:"volume_type"`
+	// SnapshotID         any    `json:"snapshot_id"`
+	// SourceVolid        any    `json:"source_volid"`
+	// Metadata           []any  `json:"metadata"`
+	// UserID             string `json:"user_id"`
+	// Bootable           string `json:"bootable"`
+	// Encrypted          bool   `json:"encrypted"`
 }
 type ServerCreatedResponse struct {
 	Server struct {
@@ -133,6 +158,15 @@ func (s *server) ListInterfaces(id string) ([]NetworkInterface, error) {
 }
 
 // Get server detail
+func (s *server) GetVolumeAttachments(id string) ([]VolumeAttachment, error) {
+	jsonStr, err := s.client.Get("server/"+id+"/volume_attachment", map[string]string{})
+	var obj []VolumeAttachment
+	if err == nil {
+		err = json.Unmarshal([]byte(jsonStr), &obj)
+	}
+	return obj, err
+}
+
 func (s *server) GetVolumeAttachmentDetail(id string, volume_id string) (VolumeAttachmentDetail, error) {
 	jsonStr, err := s.client.Get("server/"+id+"/volume_attachment/"+volume_id, map[string]string{})
 	var obj VolumeAttachmentDetail
