@@ -16,11 +16,14 @@ type Kubernetesv2Service interface {
 	Delete(id string) (ActionResponse, error)
 
 	GetNodeGroups(id string, show_nodes bool) ([]Kubernetesv2NodeGroup, error)
+	GetGpuDrivers(id string, nodegroup_id string, model string) ([]Kubernetesv2GpuDriver, error)
 	GetNodeGroup(id string, nodegroup_id string) (Kubernetesv2NodeGroup, error)
 	CreateNodeGroup(id string, params map[string]interface{}) (Kubernetesv2NodeGroup, error)
 	DeleteNodeGroup(id string, nodegroup_id string) (ActionResponse, error)
 	UpdateNodeGroup(id string, params map[string]interface{}) (ActionResponse, error)
 	UpdateAddon(id string, params map[string]interface{}) (ActionResponse, error)
+	ConfigGpu(id string, nodeGroupId string, params map[string]interface{}) (ActionResponse, error)
+	DisableGpu(id string, nodeGroupId string) (ActionResponse, error)
 }
 type Kubernetesv2StatusWrapper struct {
 	Data Kubernetesv2Status `json:"data"`
@@ -48,6 +51,8 @@ type Kubernetesv2NodeGroup struct {
 		Status    string                      `json:"status"`
 	} `json:"externalProviders"`
 	NtpServers []NtpServer `json:"ntpServers"`
+	VpcID      string      `json:"vpcId"`
+	GpuModel   string      `json:"gpuModel"`
 	// Nodes []struct {
 	// 	Name              string    `json:"name"`
 	// 	Status            string    `json:"status"`
@@ -55,10 +60,24 @@ type Kubernetesv2NodeGroup struct {
 	// 	ProviderID        string    `json:"providerId"`
 	// 	CreationTimestamp time.Time `json:"creationTimestamp"`
 	// } `json:"nodes"`
-	// Version                   string                        `json:"version"`
 	// SSHKeyName                string                        `json:"sshKeyName"
 }
-
+type Kubernetesv2GpuDriver struct {
+	ID           string `json:"id"`
+	Name         string `json:"driverName"`
+	MigSupported int    `json:"migSupported"`
+	TimeSlicing  int    `json:"timeSlicing"`
+	MigProfiles  []struct {
+		ID          string `json:"id"`
+		NameDisplay string `json:"nameDisplay"`
+		Strategy    string `json:"strategy"`
+	} `json:"migProfiles"`
+	GpuProfiles []struct {
+		ID          string `json:"id"`
+		GpuListName string `json:"gpuListName"`
+		MigProfile  string `json:"migProfile"`
+	} `json:"gpuProfiles"`
+}
 type AutoScalev2Metadata struct {
 	Image      string `json:"image"`
 	FlavorName string `json:"flavor"`
@@ -138,6 +157,9 @@ type Kubernetesv2NodeGroupWrapper struct {
 }
 type Kubernetesv2NodeGroupListWrapper struct {
 	Data []Kubernetesv2NodeGroup `json:"data"`
+}
+type Kubernetesv2GpuDriverListWrapper struct {
+	Data []Kubernetesv2GpuDriver `json:"data"`
 }
 type Kubernetesv2Wrapper struct {
 	Data Kubernetesv2 `json:"data"`
@@ -247,6 +269,20 @@ func (s *kubernetesv2) GetNodeGroups(id string, show_nodes bool) ([]Kubernetesv2
 	}
 	return obj.Data, err
 }
+
+func (s *kubernetesv2) GetGpuDrivers(id string, nodegroup_id string, model string) ([]Kubernetesv2GpuDriver, error) {
+	jsonStr, err := s.client.Get("cloudops-core/api/v1/k8s/clusters/"+id+"/node-groups/"+nodegroup_id+"/get-mapping-gpu-model", map[string]string{"gpuModel": model})
+	var obj Kubernetesv2GpuDriverListWrapper
+	if err != nil {
+		var nilres []Kubernetesv2GpuDriver
+		return nilres, err
+	}
+	err = json.Unmarshal([]byte(jsonStr), &obj)
+	if err != nil {
+		return []Kubernetesv2GpuDriver{}, err
+	}
+	return obj.Data, err
+}
 func (v *kubernetesv2) GetNodeGroup(id string, nodegroup_id string) (Kubernetesv2NodeGroup, error) {
 	jsonStr, err := v.client.Get("cloudops-core/api/v1/k8s/clusters/"+id+"/node-groups/"+nodegroup_id, map[string]string{})
 	var response Kubernetesv2NodeGroupWrapper
@@ -298,4 +334,10 @@ func (s *kubernetesv2) UpdateNodeGroup(id string, params map[string]interface{})
 
 func (s *kubernetesv2) UpdateAddon(id string, params map[string]interface{}) (ActionResponse, error) {
 	return s.client.PerformAction("cloudops-core/api/v1/k8s/clusters/"+id+"/addons", params)
+}
+func (s *kubernetesv2) ConfigGpu(id string, nodeGroupId string, params map[string]interface{}) (ActionResponse, error) {
+	return s.client.PerformAction("cloudops-core/api/v1/k8s/clusters/"+id+"/node-groups/"+nodeGroupId+"/add-gpu-node-group", params)
+}
+func (s *kubernetesv2) DisableGpu(id string, nodeGroupId string) (ActionResponse, error) {
+	return s.client.PerformAction("cloudops-core/api/v1/k8s/clusters/"+id+"/node-groups/"+nodeGroupId+"/disable-gpu-node-group", map[string]interface{}{})
 }
